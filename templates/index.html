@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Supplement Log 🌿</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --card: #fffdf8;
+    --green: #2d6a4f;
+    --green-light: #52b788;
+    --green-pale: #d8f3dc;
+    --amber: #e07a2f;
+    --amber-pale: #fde8d0;
+    --red: #c1440e;
+    --red-pale: #fde8e0;
+    --text: #1a1a1a;
+    --muted: #7a7060;
+    --border: #e8e0d0;
+    --shadow: 0 4px 24px rgba(45,106,79,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 10% 20%, rgba(82,183,136,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 80%, rgba(224,122,47,0.10) 0%, transparent 50%);
+  }
+  header {
+    background: var(--green);
+    color: white;
+    padding: 28px 24px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: -20px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    position: relative;
+  }
+  header p {
+    font-size: 0.85rem;
+    opacity: 0.75;
+    margin-top: 4px;
+    font-weight: 300;
+    position: relative;
+  }
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+  }
+  .today-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 28px 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    animation: slideUp 0.5s ease;
+  }
+  @keyframes slideUp {
+    from { opacity:0; transform: translateY(16px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  .today-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .today-date {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 20px;
+  }
+  .question {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 16px;
+  }
+  .btn-row { display: flex; gap: 12px; }
+  .btn {
+    flex: 1;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+  .btn-yes { background: var(--green); color: white; }
+  .btn-yes:hover:not(:disabled) { background: #245a40; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(45,106,79,0.3); }
+  .btn-no { background: var(--red-pale); color: var(--red); border: 1.5px solid rgba(193,68,14,0.2); }
+  .btn-no:hover:not(:disabled) { background: #fad4c8; transform: translateY(-2px); }
+  .already-logged {
+    text-align: center;
+    padding: 20px;
+    border-radius: 14px;
+    font-weight: 500;
+    font-size: 1rem;
+  }
+  .logged-yes { background: var(--green-pale); color: var(--green); }
+  .logged-no  { background: var(--red-pale); color: var(--red); }
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 18px 14px;
+    text-align: center;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    animation: slideUp 0.5s ease 0.1s both;
+  }
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--green);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.72rem;
+    color: var(--muted);
+    font-weight: 500;
+    margin-top: 4px;
+  }
+  .streak-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    animation: slideUp 0.5s ease 0.15s both;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+  .week-dots { display: flex; gap: 8px; flex-wrap: wrap; }
+  .dot {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 600;
+    flex-direction: column;
+    gap: 2px;
+    transition: transform 0.2s;
+    cursor: default;
+  }
+  .dot:hover { transform: scale(1.1); }
+  .dot-yes   { background: var(--green); color: white; }
+  .dot-no    { background: var(--red-pale); color: var(--red); }
+  .dot-empty { background: var(--border); color: var(--muted); }
+  .dot span  { font-size: 0.6rem; opacity: 0.8; }
+  .milestone-card {
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    animation: slideUp 0.5s ease 0.2s both;
+    border: 1px solid transparent;
+  }
+  .milestone-active {
+    background: linear-gradient(135deg, #2d6a4f 0%, #52b788 100%);
+    color: white;
+  }
+  .milestone-upcoming {
+    background: var(--card);
+    border-color: var(--border);
+    box-shadow: var(--shadow);
+  }
+  .milestone-icon { font-size: 2rem; margin-bottom: 8px; }
+  .milestone-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .milestone-desc { font-size: 0.88rem; line-height: 1.5; opacity: 0.9; }
+  .milestone-progress {
+    margin-top: 14px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 99px;
+    height: 6px;
+    overflow: hidden;
+  }
+  .milestone-progress-bar {
+    height: 100%;
+    background: white;
+    border-radius: 99px;
+    transition: width 1s ease;
+  }
+  .milestone-upcoming .milestone-progress { background: var(--border); }
+  .milestone-upcoming .milestone-progress-bar { background: var(--green-light); }
+  .milestone-days { font-size: 0.75rem; margin-top: 6px; opacity: 0.8; }
+  .analysis-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    animation: slideUp 0.5s ease 0.25s both;
+  }
+  .analysis-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .analysis-bar-label { font-size: 0.8rem; color: var(--muted); width: 70px; flex-shrink: 0; }
+  .analysis-bar-track {
+    flex: 1;
+    height: 10px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .analysis-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: var(--green);
+    transition: width 1s ease;
+  }
+  .analysis-pct { font-size: 0.8rem; font-weight: 600; color: var(--green); width: 36px; text-align: right; }
+  .tip-box {
+    background: var(--amber-pale);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-top: 14px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #7a4010;
+    border-left: 3px solid var(--amber);
+  }
+  .tip-box strong { display: block; margin-bottom: 4px; color: var(--amber); }
+  .history-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    animation: slideUp 0.5s ease 0.3s both;
+  }
+  .history-list { list-style: none; }
+  .history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+  .history-item:last-child { border-bottom: none; }
+  .history-date { color: var(--muted); }
+  .badge {
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .badge-yes { background: var(--green-pale); color: var(--green); }
+  .badge-no  { background: var(--red-pale); color: var(--red); }
+  .empty-state {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .empty-state .emoji { font-size: 2.5rem; display: block; margin-bottom: 10px; }
+  .loading {
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    padding: 16px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🌿 Daily Supplement Log</h1>
+  <p>Garden of Life Raw One · Magnesium Glycinate</p>
+</header>
+
+<div class="container">
+  <div id="app"><div class="loading">Loading...</div></div>
+</div>
+
+<footer>Stay consistent — every day counts 💚</footer>
+
+<script>
+const milestones = [
+  { days: 7,  icon: '😴', title: 'Week 1 — Sleep & Recovery',
+    desc: 'Magnesium should be kicking in. Better sleep and waking up less sore after hard days.' },
+  { days: 14, icon: '⚡', title: 'Week 2 — Energy Boost',
+    desc: 'B vitamins are building up. More consistent energy and fewer afternoon crashes.' },
+  { days: 30, icon: '💪', title: 'Month 1 — Feeling Stronger',
+    desc: 'Better muscle recovery, less fatigue. Antioxidants are fighting UV oxidative stress from sun exposure.' },
+  { days: 60, icon: '🛡️', title: 'Month 2 — Immune Defense',
+    desc: 'Zinc and Vitamin C are building a stronger immune shield. Fewer sick days, skin looking healthier.' },
+  { days: 90, icon: '🌟', title: 'Month 3 — Full Effect',
+    desc: 'All nutrients at optimal levels. Sustained energy, strong immunity, better focus and mood. Full benefit zone!' },
+];
+
+let logData = {};
+
+function todayKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+function formatDate(key) {
+  const d = new Date(key + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+function getTotalYes(log) {
+  return Object.values(log).filter(v => v === true).length;
+}
+function getTotalLogged(log) {
+  return Object.keys(log).length;
+}
+function getStreak(log) {
+  let streak = 0;
+  const today = new Date();
+  for (let i = 0; i < 365; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    if (log[key] === true) streak++;
+    else if (log[key] === false) break;
+    else if (i > 0) break;
+  }
+  return streak;
+}
+
+async function fetchLogs() {
+  const res = await fetch('/api/logs');
+  logData = await res.json();
+}
+
+async function logToday(taken) {
+  const today = todayKey();
+  // Optimistic update
+  logData[today] = taken;
+  render();
+  await fetch('/api/logs', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ date: today, taken })
+  });
+}
+
+function render() {
+  const log = logData;
+  const today = todayKey();
+  const totalYes = getTotalYes(log);
+  const totalLogged = getTotalLogged(log);
+  const streak = getStreak(log);
+  const rate = totalLogged ? Math.round((totalYes / totalLogged) * 100) : 0;
+
+  // Today action
+  let todayHTML = '';
+  if (log[today] === undefined) {
+    todayHTML = `
+      <div class="btn-row">
+        <button class="btn btn-yes" onclick="logToday(true)">✅ Yes, taken!</button>
+        <button class="btn btn-no"  onclick="logToday(false)">❌ Not today</button>
+      </div>`;
+  } else if (log[today] === true) {
+    todayHTML = `<div class="already-logged logged-yes">✅ Logged as taken today — great job! 💪</div>`;
+  } else {
+    todayHTML = `<div class="already-logged logged-no">❌ Logged as missed today — tomorrow is a new day! 🌱</div>`;
+  }
+
+  // Last 14 dots
+  let dotsHTML = '';
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 2);
+    const val = log[key];
+    const cls = val === true ? 'dot-yes' : val === false ? 'dot-no' : 'dot-empty';
+    const icon = val === true ? '✓' : val === false ? '✗' : '·';
+    dotsHTML += `<div class="dot ${cls}" title="${formatDate(key)}">${icon}<span>${dayName}</span></div>`;
+  }
+
+  // Milestone
+  let msHTML = '';
+  let currentMs = null, nextMs = null;
+  for (let i = milestones.length - 1; i >= 0; i--) {
+    if (totalYes >= milestones[i].days) { currentMs = milestones[i]; break; }
+  }
+  for (let m of milestones) {
+    if (totalYes < m.days) { nextMs = m; break; }
+  }
+  if (currentMs) {
+    const pct = Math.min(100, Math.round((totalYes / (nextMs ? nextMs.days : currentMs.days)) * 100));
+    msHTML = `
+      <div class="milestone-card milestone-active">
+        <div class="milestone-icon">${currentMs.icon}</div>
+        <div class="milestone-title">${currentMs.title}</div>
+        <div class="milestone-desc">${currentMs.desc}</div>
+        ${nextMs ? `
+          <div class="milestone-progress"><div class="milestone-progress-bar" style="width:${pct}%"></div></div>
+          <div class="milestone-days">${totalYes} / ${nextMs.days} days → next: ${nextMs.icon} ${nextMs.title.split('—')[1].trim()}</div>
+        ` : '<div class="milestone-days" style="margin-top:10px">🎉 All milestones reached!</div>'}
+      </div>`;
+  } else if (nextMs) {
+    const pct = Math.min(100, Math.round((totalYes / nextMs.days) * 100));
+    msHTML = `
+      <div class="milestone-card milestone-upcoming">
+        <div class="milestone-icon">${nextMs.icon}</div>
+        <div class="milestone-title">Next Milestone: ${nextMs.title}</div>
+        <div class="milestone-desc">${nextMs.desc}</div>
+        <div class="milestone-progress"><div class="milestone-progress-bar" style="width:${pct}%"></div></div>
+        <div class="milestone-days" style="color:var(--muted);margin-top:6px;font-size:0.75rem">${totalYes} / ${nextMs.days} days</div>
+      </div>`;
+  }
+
+  // Weekly analysis
+  let analysisHTML = '';
+  if (totalLogged === 0) {
+    analysisHTML = `<div class="empty-state"><span class="emoji">📊</span>Start logging to see your weekly analysis!</div>`;
+  } else {
+    const weeks = [
+      { label: 'This week', offset: 0 },
+      { label: 'Last week', offset: 7 },
+      { label: '3 weeks',   offset: 14 },
+      { label: '4 weeks',   offset: 21 },
+    ];
+    let barsHTML = '';
+    weeks.forEach(w => {
+      let yes = 0, total = 0;
+      for (let i = 0; i < 7; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - w.offset - i);
+        const key = d.toISOString().slice(0, 10);
+        if (log[key] !== undefined) { total++; if (log[key]) yes++; }
+      }
+      const pct = total ? Math.round((yes / total) * 100) : 0;
+      barsHTML += `
+        <div class="analysis-bar-row">
+          <div class="analysis-bar-label">${w.label}</div>
+          <div class="analysis-bar-track"><div class="analysis-bar-fill" style="width:${pct}%"></div></div>
+          <div class="analysis-pct">${total ? pct + '%' : '—'}</div>
+        </div>`;
+    });
+    let tip = '';
+    if (rate >= 90) tip = `<div class="tip-box"><strong>🌟 Excellent consistency!</strong>At ${rate}% compliance, full supplement benefits are being reached. Keep it up — the 3-month mark is where the real magic happens!</div>`;
+    else if (rate >= 70) tip = `<div class="tip-box"><strong>💪 Good progress!</strong>At ${rate}%, doing well. Try tying the vitamins to a specific dinner habit — same plate, same time — to push toward 90%+.</div>`;
+    else if (rate >= 50) tip = `<div class="tip-box"><strong>⚡ Room to improve.</strong>At ${rate}%, some benefits may be inconsistent. Try leaving the bottles visible on the dinner table as a visual reminder!</div>`;
+    else tip = `<div class="tip-box"><strong>🌱 Just getting started.</strong>Consistency is key — even 5 days in a row makes a difference. Small habits add up!</div>`;
+    analysisHTML = barsHTML + tip;
+  }
+
+  // History
+  const keys = Object.keys(log).sort().reverse().slice(0, 20);
+  let historyHTML = keys.length === 0
+    ? `<div class="empty-state"><span class="emoji">📋</span>No entries yet — log today first!</div>`
+    : keys.map(k => `
+        <li class="history-item">
+          <span class="history-date">${formatDate(k)}</span>
+          <span class="badge ${log[k] ? 'badge-yes' : 'badge-no'}">${log[k] ? '✅ Taken' : '❌ Missed'}</span>
+        </li>`).join('');
+
+  document.getElementById('app').innerHTML = `
+    <div class="today-card">
+      <div class="today-label">Today</div>
+      <div class="today-date">${formatDate(today)}</div>
+      <div class="question">Were the supplements taken today? 💊</div>
+      ${todayHTML}
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value">${totalYes}</div>
+        <div class="stat-label">Days Taken</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${streak}</div>
+        <div class="stat-label">🔥 Streak</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${rate}%</div>
+        <div class="stat-label">Compliance</div>
+      </div>
+    </div>
+
+    <div class="streak-card">
+      <div class="section-title">Last 14 Days</div>
+      <div class="week-dots">${dotsHTML}</div>
+    </div>
+
+    ${msHTML}
+
+    <div class="analysis-card">
+      <div class="section-title">📊 Weekly Analysis</div>
+      ${analysisHTML}
+    </div>
+
+    <div class="history-card">
+      <div class="section-title">📋 Log History</div>
+      <ul class="history-list">${historyHTML}</ul>
+    </div>
+  `;
+}
+
+async function init() {
+  await fetchLogs();
+  render();
+}
+
+init();
+</script>
+</body>
+</html>
