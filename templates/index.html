@@ -3,146 +3,176 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Daily Supplement Log 🌿</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>Supplement Log</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f5f0e8;
+    --bg: #f4f1ec;
     --card: #fffdf8;
     --green: #2d6a4f;
     --green-light: #52b788;
     --green-pale: #d8f3dc;
-    --amber: #e07a2f;
+    --amber: #c97a2f;
     --amber-pale: #fde8d0;
-    --red: #c1440e;
+    --red: #b5391a;
     --red-pale: #fde8e0;
     --text: #1a1a1a;
-    --muted: #7a7060;
-    --border: #e8e0d0;
-    --shadow: 0 4px 24px rgba(45,106,79,0.10);
-    --sidebar-w: 300px;
+    --muted: #8a8078;
+    --border: #e4ddd2;
+    --shadow: 0 2px 16px rgba(45,106,79,0.08);
+    --sidebar-w: 280px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    background-image:
-      radial-gradient(ellipse at 10% 20%, rgba(82,183,136,0.08) 0%, transparent 50%),
-      radial-gradient(ellipse at 90% 80%, rgba(224,122,47,0.06) 0%, transparent 50%);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh; display: flex;
+    -webkit-font-smoothing: antialiased;
   }
   .sidebar {
-    width: var(--sidebar-w);
-    min-height: 100vh;
-    background: var(--green);
-    color: white;
-    padding: 32px 24px;
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: 0; left: 0; bottom: 0;
-    z-index: 10;
-    overflow-y: auto;
+    width: var(--sidebar-w); min-height: 100vh;
+    background: var(--green); color: white;
+    padding: 32px 22px; display: flex; flex-direction: column;
+    position: fixed; top: 0; left: 0; bottom: 0; z-index: 10; overflow-y: auto;
   }
   .sidebar h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem; font-weight: 900;
-    letter-spacing: -0.5px; margin-bottom: 4px;
+    font-family: 'Libre Baskerville', serif;
+    font-size: 1.35rem; font-weight: 700; margin-bottom: 4px;
   }
-  .sidebar .subtitle {
-    font-size: 0.78rem; opacity: 0.65;
-    font-weight: 300; margin-bottom: 32px; line-height: 1.4;
+  .sidebar .subtitle { font-size: 0.75rem; opacity: 0.55; font-weight: 300; margin-bottom: 28px; line-height: 1.4; }
+  .sidebar-stats { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+  .sidebar-stat { background: rgba(255,255,255,0.1); border-radius: 12px; padding: 14px; text-align: center; }
+  .sidebar-stat-value { font-family: 'Libre Baskerville', serif; font-size: 1.8rem; font-weight: 700; line-height: 1; }
+  .sidebar-stat-label { font-size: 0.68rem; opacity: 0.6; font-weight: 500; margin-top: 4px; letter-spacing: 0.3px; }
+  .sidebar-footer { margin-top: auto; font-size: 0.7rem; opacity: 0.4; text-align: center; padding-top: 20px; }
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 32px 36px 48px; min-height: 100vh; }
+  .main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .main-header-date { font-family: 'Libre Baskerville', serif; font-size: 1.4rem; font-weight: 700; color: var(--green); }
+  .main-header-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+
+  .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .dash-card { background: var(--card); border-radius: 16px; padding: 22px; box-shadow: var(--shadow); border: 1px solid var(--border); animation: slideUp 0.4s ease both; }
+  @keyframes slideUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+  .section-title { font-family: 'Libre Baskerville', serif; font-size: 1rem; font-weight: 700; margin-bottom: 14px; color: var(--text); }
+
+  /* Add supplement form */
+  .add-form { display: flex; gap: 8px; margin-bottom: 16px; }
+  .add-input {
+    flex: 1; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 10px;
+    font-family: 'Inter', sans-serif; font-size: 0.88rem; background: white; color: var(--text);
+    outline: none; transition: border-color 0.2s;
   }
-  .sidebar-stats { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
-  .sidebar-stat { background: rgba(255,255,255,0.1); border-radius: 14px; padding: 16px; text-align: center; }
-  .sidebar-stat-value { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 900; line-height: 1; }
-  .sidebar-stat-label { font-size: 0.72rem; opacity: 0.7; font-weight: 500; margin-top: 4px; }
-  .sidebar-footer { margin-top: auto; font-size: 0.72rem; opacity: 0.5; text-align: center; padding-top: 24px; }
-  .main { margin-left: var(--sidebar-w); flex: 1; padding: 32px 40px 48px; min-height: 100vh; }
-  .main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
-  .main-header-date { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: var(--green); }
-  .main-header-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
-  .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  .dash-card { background: var(--card); border-radius: 20px; padding: 24px; box-shadow: var(--shadow); border: 1px solid var(--border); animation: slideUp 0.5s ease both; }
-  .dash-card.span-2 { grid-column: span 2; }
-  @keyframes slideUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
-  .question { font-size: 1.1rem; font-weight: 500; margin-bottom: 16px; }
-  .btn-row { display: flex; gap: 12px; }
-  .btn { flex: 1; padding: 16px; border: none; border-radius: 14px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
-  .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
-  .btn-yes { background: var(--green); color: white; }
-  .btn-yes:hover:not(:disabled) { background: #245a40; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(45,106,79,0.3); }
-  .btn-no { background: var(--red-pale); color: var(--red); border: 1.5px solid rgba(193,68,14,0.2); }
-  .btn-no:hover:not(:disabled) { background: #fad4c8; transform: translateY(-2px); }
-  .already-logged { text-align: center; padding: 20px; border-radius: 14px; font-weight: 500; font-size: 1rem; }
-  .logged-yes { background: var(--green-pale); color: var(--green); }
-  .logged-no  { background: var(--red-pale); color: var(--red); }
-  .section-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 14px; color: var(--text); }
-  .week-dots { display: flex; gap: 8px; flex-wrap: wrap; }
-  .dot { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 600; flex-direction: column; gap: 2px; transition: transform 0.2s; cursor: default; }
-  .dot:hover { transform: scale(1.1); }
+  .add-input:focus { border-color: var(--green); }
+  .add-input::placeholder { color: var(--muted); }
+  .add-btn {
+    padding: 10px 18px; border: none; border-radius: 10px; background: var(--green); color: white;
+    font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: background 0.2s;
+    white-space: nowrap;
+  }
+  .add-btn:hover { background: #245a40; }
+
+  /* Supplement list */
+  .supp-list { display: flex; flex-direction: column; gap: 10px; }
+  .supp-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--border);
+    background: white; transition: all 0.2s;
+  }
+  .supp-item-name { font-weight: 500; font-size: 0.9rem; flex: 1; }
+  .supp-actions { display: flex; gap: 6px; align-items: center; }
+  .supp-btn {
+    padding: 7px 14px; border: none; border-radius: 8px;
+    font-family: 'Inter', sans-serif; font-size: 0.78rem; font-weight: 600;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .supp-btn-yes { background: var(--green); color: white; }
+  .supp-btn-yes:hover { background: #245a40; }
+  .supp-btn-no { background: var(--red-pale); color: var(--red); }
+  .supp-btn-no:hover { background: #f5cfc4; }
+  .supp-btn-del { background: none; color: var(--muted); padding: 7px 8px; font-size: 0.82rem; }
+  .supp-btn-del:hover { color: var(--red); }
+  .supp-status {
+    padding: 5px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 600;
+  }
+  .status-taken { background: var(--green-pale); color: var(--green); }
+  .status-missed { background: var(--red-pale); color: var(--red); }
+
+  /* Dots */
+  .week-dots { display: flex; gap: 6px; flex-wrap: wrap; }
+  .dot {
+    width: 34px; height: 34px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.62rem; font-weight: 600; flex-direction: column; gap: 1px;
+    transition: transform 0.2s; cursor: default;
+  }
+  .dot:hover { transform: scale(1.08); }
   .dot-yes { background: var(--green); color: white; }
   .dot-no { background: var(--red-pale); color: var(--red); }
   .dot-empty { background: var(--border); color: var(--muted); }
-  .dot span { font-size: 0.6rem; opacity: 0.8; }
-  .milestone-card { border-radius: 20px; padding: 24px; animation: slideUp 0.5s ease 0.2s both; border: 1px solid transparent; }
-  .milestone-active { background: linear-gradient(135deg, #2d6a4f 0%, #52b788 100%); color: white; }
-  .milestone-upcoming { background: var(--card); border-color: var(--border); box-shadow: var(--shadow); }
-  .milestone-icon { font-size: 2rem; margin-bottom: 8px; }
-  .milestone-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
-  .milestone-desc { font-size: 0.88rem; line-height: 1.5; opacity: 0.9; }
-  .milestone-progress { margin-top: 14px; background: rgba(255,255,255,0.25); border-radius: 99px; height: 6px; overflow: hidden; }
-  .milestone-progress-bar { height: 100%; background: white; border-radius: 99px; transition: width 1s ease; }
-  .milestone-upcoming .milestone-progress { background: var(--border); }
-  .milestone-upcoming .milestone-progress-bar { background: var(--green-light); }
-  .milestone-days { font-size: 0.75rem; margin-top: 6px; opacity: 0.8; }
-  .analysis-bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-  .analysis-bar-label { font-size: 0.8rem; color: var(--muted); width: 70px; flex-shrink: 0; }
-  .analysis-bar-track { flex: 1; height: 10px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .dot-partial { background: var(--amber-pale); color: var(--amber); }
+  .dot span { font-size: 0.58rem; opacity: 0.75; }
+
+  /* Analysis */
+  .analysis-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .analysis-bar-label { font-size: 0.78rem; color: var(--muted); width: 68px; flex-shrink: 0; }
+  .analysis-bar-track { flex: 1; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
   .analysis-bar-fill { height: 100%; border-radius: 99px; background: var(--green); transition: width 1s ease; }
-  .analysis-pct { font-size: 0.8rem; font-weight: 600; color: var(--green); width: 36px; text-align: right; }
-  .tip-box { background: var(--amber-pale); border-radius: 12px; padding: 14px 16px; margin-top: 14px; font-size: 0.85rem; line-height: 1.5; color: #7a4010; border-left: 3px solid var(--amber); }
-  .tip-box strong { display: block; margin-bottom: 4px; color: var(--amber); }
-  .history-list { list-style: none; }
-  .history-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+  .analysis-pct { font-size: 0.78rem; font-weight: 600; color: var(--green); width: 36px; text-align: right; }
+  .tip-box {
+    background: var(--amber-pale); border-radius: 10px; padding: 12px 14px; margin-top: 12px;
+    font-size: 0.82rem; line-height: 1.5; color: #7a4010; border-left: 3px solid var(--amber);
+  }
+  .tip-box strong { display: block; margin-bottom: 3px; color: var(--amber); }
+
+  /* History */
+  .history-list { list-style: none; max-height: 360px; overflow-y: auto; }
+  .history-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 0.85rem;
+  }
   .history-item:last-child { border-bottom: none; }
   .history-date { color: var(--muted); }
-  .badge { padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; }
+  .history-detail { font-size: 0.75rem; color: var(--muted); }
+  .badge { padding: 3px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 600; }
   .badge-yes { background: var(--green-pale); color: var(--green); }
-  .badge-no  { background: var(--red-pale); color: var(--red); }
-  .ms-timeline { display: flex; flex-direction: column; gap: 16px; }
-  .ms-row { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-radius: 14px; background: rgba(0,0,0,0.02); border: 1px solid var(--border); transition: background 0.2s; }
+  .badge-no { background: var(--red-pale); color: var(--red); }
+  .badge-partial { background: var(--amber-pale); color: var(--amber); }
+
+  /* Milestones */
+  .ms-timeline { display: flex; flex-direction: column; gap: 12px; }
+  .ms-row {
+    display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+    border-radius: 10px; background: rgba(0,0,0,0.02); border: 1px solid var(--border);
+  }
   .ms-row.ms-done { background: var(--green-pale); border-color: var(--green-light); }
   .ms-row.ms-next { background: var(--amber-pale); border-color: var(--amber); }
-  .ms-row-icon { font-size: 1.5rem; flex-shrink: 0; }
   .ms-row-info { flex: 1; }
-  .ms-row-title { font-weight: 600; font-size: 0.88rem; }
-  .ms-row-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
-  .ms-row-badge { font-size: 0.7rem; font-weight: 600; padding: 3px 10px; border-radius: 99px; flex-shrink: 0; }
+  .ms-row-title { font-weight: 600; font-size: 0.85rem; }
+  .ms-row-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+  .ms-row-badge { font-size: 0.68rem; font-weight: 600; padding: 3px 10px; border-radius: 99px; flex-shrink: 0; }
   .ms-row.ms-done .ms-row-badge { background: var(--green); color: white; }
   .ms-row.ms-next .ms-row-badge { background: var(--amber); color: white; }
   .ms-row .ms-row-badge { background: var(--border); color: var(--muted); }
-  .empty-state { text-align: center; padding: 32px 16px; color: var(--muted); font-size: 0.9rem; }
-  .empty-state .emoji { font-size: 2.5rem; display: block; margin-bottom: 10px; }
-  @media (max-width: 1024px) { .dash-grid { grid-template-columns: 1fr; } .dash-card.span-2 { grid-column: span 1; } }
+
+  .empty-state { text-align: center; padding: 28px 14px; color: var(--muted); font-size: 0.85rem; line-height: 1.6; }
+
+  @media (max-width: 1024px) { .dash-grid { grid-template-columns: 1fr; } }
   @media (max-width: 768px) {
-    .sidebar { position: relative; width: 100%; min-height: auto; flex-direction: row; flex-wrap: wrap; padding: 20px; align-items: center; gap: 12px; }
-    .sidebar h1 { font-size: 1.2rem; } .sidebar .subtitle { margin-bottom: 0; }
-    .sidebar-stats { flex-direction: row; gap: 8px; width: 100%; }
-    .sidebar-stat { flex: 1; padding: 10px; } .sidebar-stat-value { font-size: 1.5rem; }
+    .sidebar { position: relative; width: 100%; min-height: auto; flex-direction: row; flex-wrap: wrap; padding: 18px; align-items: center; gap: 10px; }
+    .sidebar h1 { font-size: 1.1rem; } .sidebar .subtitle { margin-bottom: 0; }
+    .sidebar-stats { flex-direction: row; gap: 6px; width: 100%; }
+    .sidebar-stat { flex: 1; padding: 8px; } .sidebar-stat-value { font-size: 1.3rem; }
     .sidebar-footer { display: none; } body { flex-direction: column; }
-    .main { margin-left: 0; padding: 20px 16px 40px; }
+    .main { margin-left: 0; padding: 18px 14px 36px; }
   }
 </style>
 </head>
 <body>
 <aside class="sidebar" id="sidebar">
-  <h1>🌿 Supplement Log</h1>
-  <p class="subtitle">Garden of Life Raw One · Magnesium Glycinate</p>
+  <h1>Supplement Log</h1>
+  <p class="subtitle">Track your daily supplements</p>
   <div class="sidebar-stats" id="sidebar-stats"></div>
-  <div class="sidebar-footer">Stay consistent — every day counts 💚</div>
+  <div class="sidebar-footer">Stay consistent, every day counts.</div>
 </aside>
 <div class="main">
   <div class="main-header">
@@ -155,137 +185,229 @@
 </div>
 <script>
 const milestones = [
-  { days: 7,  icon: '😴', title: 'Week 1 — Sleep & Recovery',
-    desc: 'Magnesium should be kicking in. Better sleep and waking up less sore after hard days.' },
-  { days: 14, icon: '⚡', title: 'Week 2 — Energy Boost',
-    desc: 'B vitamins are building up. More consistent energy and fewer afternoon crashes.' },
-  { days: 30, icon: '💪', title: 'Month 1 — Feeling Stronger',
-    desc: 'Better muscle recovery, less fatigue. Antioxidants are fighting UV oxidative stress from sun exposure.' },
-  { days: 60, icon: '🛡️', title: 'Month 2 — Immune Defense',
-    desc: 'Zinc and Vitamin C are building a stronger immune shield. Fewer sick days, skin looking healthier.' },
-  { days: 90, icon: '🌟', title: 'Month 3 — Full Effect',
-    desc: 'All nutrients at optimal levels. Sustained energy, strong immunity, better focus and mood. Full benefit zone!' },
+  { days: 7,  title: 'Week 1 — Sleep & Recovery', desc: 'Magnesium should be kicking in. Better sleep and waking up less sore after hard days.' },
+  { days: 14, title: 'Week 2 — Energy Boost', desc: 'B vitamins are building up. More consistent energy and fewer afternoon crashes.' },
+  { days: 30, title: 'Month 1 — Feeling Stronger', desc: 'Better muscle recovery, less fatigue. Antioxidants fighting oxidative stress.' },
+  { days: 60, title: 'Month 2 — Immune Defense', desc: 'Zinc and Vitamin C building a stronger immune shield. Fewer sick days.' },
+  { days: 90, title: 'Month 3 — Full Effect', desc: 'All nutrients at optimal levels. Sustained energy, strong immunity, better focus.' },
 ];
-let logData = {};
+let supplements = [], logData = {};
+
 function todayKey() { return new Date().toISOString().slice(0, 10); }
 function formatDate(key) {
   const d = new Date(key + 'T12:00:00');
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 }
-function getTotalYes(log) { return Object.values(log).filter(v => v === true).length; }
-function getTotalLogged(log) { return Object.keys(log).length; }
-function getStreak(log) {
+function getAllDaysTaken(logs) {
+  const days = new Set();
+  for (const sid in logs) {
+    for (const date in logs[sid]) { if (logs[sid][date]) days.add(date); }
+  }
+  return days.size;
+}
+function getDayStatus(logs, date) {
+  if (supplements.length === 0) return 'empty';
+  let taken = 0, total = 0;
+  for (const s of supplements) {
+    total++;
+    if (logs[s.id] && logs[s.id][date] === true) taken++;
+  }
+  if (total === 0) return 'empty';
+  if (taken === total) return 'yes';
+  if (taken > 0) return 'partial';
+  const hasAny = supplements.some(s => logs[s.id] && logs[s.id][date] !== undefined);
+  return hasAny ? 'no' : 'empty';
+}
+function getStreak(logs) {
   let streak = 0; const today = new Date();
   for (let i = 0; i < 365; i++) {
     const d = new Date(today); d.setDate(today.getDate() - i);
     const key = d.toISOString().slice(0, 10);
-    if (log[key] === true) streak++;
-    else if (log[key] === false) break;
+    const status = getDayStatus(logs, key);
+    if (status === 'yes') streak++;
+    else if (status === 'no' || status === 'partial') break;
     else if (i > 0) break;
   }
   return streak;
 }
-async function fetchLogs() { const res = await fetch('/api/logs'); logData = await res.json(); }
-async function logToday(taken) {
-  logData[todayKey()] = taken; render();
-  await fetch('/api/logs', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ date: todayKey(), taken }) });
+function getComplianceRate(logs) {
+  let totalChecks = 0, takenChecks = 0;
+  for (const s of supplements) {
+    const slog = logs[s.id] || {};
+    for (const date in slog) { totalChecks++; if (slog[date]) takenChecks++; }
+  }
+  return totalChecks ? Math.round((takenChecks / totalChecks) * 100) : 0;
 }
+
+async function fetchAll() {
+  const [sRes, lRes] = await Promise.all([fetch('/api/supplements'), fetch('/api/logs')]);
+  supplements = await sRes.json();
+  logData = await lRes.json();
+}
+async function addSupplement() {
+  const input = document.getElementById('supp-input');
+  const name = input.value.trim();
+  if (!name) return;
+  const res = await fetch('/api/supplements', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name }) });
+  if (res.ok) { const s = await res.json(); supplements.push(s); input.value = ''; render(); }
+}
+async function deleteSupplement(id) {
+  await fetch('/api/supplements/' + id, { method: 'DELETE' });
+  supplements = supplements.filter(s => s.id !== id);
+  delete logData[id];
+  render();
+}
+async function logSupplement(sid, taken) {
+  const today = todayKey();
+  if (!logData[sid]) logData[sid] = {};
+  logData[sid][today] = taken;
+  render();
+  await fetch('/api/logs', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ supplement_id: sid, date: today, taken }) });
+}
+
 function render() {
-  const log = logData, today = todayKey();
-  const totalYes = getTotalYes(log), totalLogged = getTotalLogged(log);
-  const streak = getStreak(log);
-  const rate = totalLogged ? Math.round((totalYes / totalLogged) * 100) : 0;
+  const today = todayKey();
+  const totalDays = getAllDaysTaken(logData);
+  const streak = getStreak(logData);
+  const rate = getComplianceRate(logData);
+
   document.getElementById('header-date').textContent = formatDate(today);
   document.getElementById('sidebar-stats').innerHTML = `
-    <div class="sidebar-stat"><div class="sidebar-stat-value">${totalYes}</div><div class="sidebar-stat-label">Days Taken</div></div>
-    <div class="sidebar-stat"><div class="sidebar-stat-value">${streak}</div><div class="sidebar-stat-label">🔥 Current Streak</div></div>
-    <div class="sidebar-stat"><div class="sidebar-stat-value">${rate}%</div><div class="sidebar-stat-label">Compliance Rate</div></div>
-    <div class="sidebar-stat"><div class="sidebar-stat-value">${totalLogged}</div><div class="sidebar-stat-label">Total Logged</div></div>`;
-  let todayHTML = '';
-  if (log[today] === undefined) {
-    todayHTML = `<div class="question">Were the supplements taken today? 💊</div>
-      <div class="btn-row"><button class="btn btn-yes" onclick="logToday(true)">✅ Yes, taken!</button>
-      <button class="btn btn-no" onclick="logToday(false)">❌ Not today</button></div>`;
-  } else if (log[today] === true) {
-    todayHTML = `<div class="already-logged logged-yes">✅ Logged as taken today — great job! 💪</div>`;
+    <div class="sidebar-stat"><div class="sidebar-stat-value">${totalDays}</div><div class="sidebar-stat-label">Days Active</div></div>
+    <div class="sidebar-stat"><div class="sidebar-stat-value">${streak}</div><div class="sidebar-stat-label">Current Streak</div></div>
+    <div class="sidebar-stat"><div class="sidebar-stat-value">${rate}%</div><div class="sidebar-stat-label">Compliance</div></div>
+    <div class="sidebar-stat"><div class="sidebar-stat-value">${supplements.length}</div><div class="sidebar-stat-label">Supplements</div></div>`;
+
+  // Today's supplement list
+  let suppHTML = '';
+  if (supplements.length === 0) {
+    suppHTML = '<div class="empty-state">No supplements added yet. Add one above to start tracking.</div>';
   } else {
-    todayHTML = `<div class="already-logged logged-no">❌ Logged as missed today — tomorrow is a new day! 🌱</div>`;
+    suppHTML = '<div class="supp-list">';
+    for (const s of supplements) {
+      const todayVal = logData[s.id] && logData[s.id][today];
+      let actionHTML = '';
+      if (todayVal === true) {
+        actionHTML = `<span class="supp-status status-taken">Taken</span>`;
+      } else if (todayVal === false) {
+        actionHTML = `<span class="supp-status status-missed">Missed</span>`;
+      } else {
+        actionHTML = `<button class="supp-btn supp-btn-yes" onclick="logSupplement(${s.id},true)">Taken</button>
+          <button class="supp-btn supp-btn-no" onclick="logSupplement(${s.id},false)">Missed</button>`;
+      }
+      suppHTML += `<div class="supp-item">
+        <span class="supp-item-name">${s.name}</span>
+        <div class="supp-actions">${actionHTML}
+          <button class="supp-btn supp-btn-del" onclick="deleteSupplement(${s.id})" title="Remove">&times;</button>
+        </div></div>`;
+    }
+    suppHTML += '</div>';
   }
+
+  // 14-day dots
   let dotsHTML = '';
   for (let i = 13; i >= 0; i--) {
     const d = new Date(); d.setDate(d.getDate() - i);
     const key = d.toISOString().slice(0, 10);
     const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 2);
-    const val = log[key];
-    const cls = val === true ? 'dot-yes' : val === false ? 'dot-no' : 'dot-empty';
-    const icon = val === true ? '✓' : val === false ? '✗' : '·';
+    const status = getDayStatus(logData, key);
+    const cls = status === 'yes' ? 'dot-yes' : status === 'no' ? 'dot-no' : status === 'partial' ? 'dot-partial' : 'dot-empty';
+    const icon = status === 'yes' ? '/' : status === 'no' ? 'x' : status === 'partial' ? '~' : '-';
     dotsHTML += `<div class="dot ${cls}" title="${formatDate(key)}">${icon}<span>${dayName}</span></div>`;
   }
-  let msCardHTML = '', currentMs = null, nextMs = null;
-  for (let i = milestones.length - 1; i >= 0; i--) { if (totalYes >= milestones[i].days) { currentMs = milestones[i]; break; } }
-  for (let m of milestones) { if (totalYes < m.days) { nextMs = m; break; } }
-  if (currentMs) {
-    const pct = Math.min(100, Math.round((totalYes / (nextMs ? nextMs.days : currentMs.days)) * 100));
-    msCardHTML = `<div class="milestone-card milestone-active"><div class="milestone-icon">${currentMs.icon}</div>
-      <div class="milestone-title">${currentMs.title}</div><div class="milestone-desc">${currentMs.desc}</div>
-      ${nextMs ? `<div class="milestone-progress"><div class="milestone-progress-bar" style="width:${pct}%"></div></div>
-      <div class="milestone-days">${totalYes} / ${nextMs.days} days → next: ${nextMs.icon} ${nextMs.title.split('—')[1].trim()}</div>`
-      : '<div class="milestone-days" style="margin-top:10px">🎉 All milestones reached!</div>'}</div>`;
-  } else if (nextMs) {
-    const pct = Math.min(100, Math.round((totalYes / nextMs.days) * 100));
-    msCardHTML = `<div class="milestone-card milestone-upcoming"><div class="milestone-icon">${nextMs.icon}</div>
-      <div class="milestone-title">Next: ${nextMs.title}</div><div class="milestone-desc">${nextMs.desc}</div>
-      <div class="milestone-progress"><div class="milestone-progress-bar" style="width:${pct}%"></div></div>
-      <div class="milestone-days" style="color:var(--muted);margin-top:6px;font-size:0.75rem">${totalYes} / ${nextMs.days} days</div></div>`;
-  }
-  let msTimelineHTML = '';
-  milestones.forEach(m => {
-    const done = totalYes >= m.days, isNext = !done && (nextMs && m.days === nextMs.days);
-    const cls = done ? 'ms-done' : isNext ? 'ms-next' : '';
-    const badge = done ? 'Reached' : isNext ? `${m.days - totalYes} days left` : `${m.days} days`;
-    msTimelineHTML += `<div class="ms-row ${cls}"><div class="ms-row-icon">${m.icon}</div>
-      <div class="ms-row-info"><div class="ms-row-title">${m.title}</div>
-      <div class="ms-row-sub">${m.desc.slice(0, 60)}…</div></div>
-      <div class="ms-row-badge">${badge}</div></div>`;
-  });
+
+  // Weekly analysis
   let analysisHTML = '';
+  const totalLogged = Object.values(logData).reduce((sum, slog) => sum + Object.keys(slog).length, 0);
   if (totalLogged === 0) {
-    analysisHTML = `<div class="empty-state"><span class="emoji">📊</span>Start logging to see your weekly analysis!</div>`;
+    analysisHTML = '<div class="empty-state">Start logging to see your weekly analysis.</div>';
   } else {
     const weeks = [{label:'This week',offset:0},{label:'Last week',offset:7},{label:'3 weeks',offset:14},{label:'4 weeks',offset:21}];
-    let barsHTML = '';
     weeks.forEach(w => {
       let yes = 0, total = 0;
-      for (let i = 0; i < 7; i++) { const d = new Date(); d.setDate(d.getDate()-w.offset-i); const key = d.toISOString().slice(0,10); if (log[key]!==undefined){total++;if(log[key])yes++;} }
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(); d.setDate(d.getDate()-w.offset-i);
+        const key = d.toISOString().slice(0,10);
+        for (const s of supplements) {
+          if (logData[s.id] && logData[s.id][key] !== undefined) { total++; if (logData[s.id][key]) yes++; }
+        }
+      }
       const pct = total ? Math.round((yes/total)*100) : 0;
-      barsHTML += `<div class="analysis-bar-row"><div class="analysis-bar-label">${w.label}</div>
+      analysisHTML += `<div class="analysis-bar-row"><div class="analysis-bar-label">${w.label}</div>
         <div class="analysis-bar-track"><div class="analysis-bar-fill" style="width:${pct}%"></div></div>
-        <div class="analysis-pct">${total ? pct+'%' : '—'}</div></div>`;
+        <div class="analysis-pct">${total ? pct+'%' : '--'}</div></div>`;
     });
     let tip = '';
-    if (rate >= 90) tip = `<div class="tip-box"><strong>🌟 Excellent consistency!</strong>At ${rate}% compliance, full supplement benefits are being reached. Keep it up!</div>`;
-    else if (rate >= 70) tip = `<div class="tip-box"><strong>💪 Good progress!</strong>At ${rate}%, doing well. Try tying the vitamins to a specific dinner habit to push toward 90%+.</div>`;
-    else if (rate >= 50) tip = `<div class="tip-box"><strong>⚡ Room to improve.</strong>At ${rate}%, some benefits may be inconsistent. Try leaving the bottles visible as a reminder!</div>`;
-    else tip = `<div class="tip-box"><strong>🌱 Just getting started.</strong>Consistency is key — even 5 days in a row makes a difference!</div>`;
-    analysisHTML = barsHTML + tip;
+    if (rate >= 90) tip = `<div class="tip-box"><strong>Excellent consistency</strong>At ${rate}% compliance, you're getting the full benefit. Keep it up.</div>`;
+    else if (rate >= 70) tip = `<div class="tip-box"><strong>Good progress</strong>At ${rate}%, you're doing well. Try pairing supplements with a meal to push toward 90%+.</div>`;
+    else if (rate >= 50) tip = `<div class="tip-box"><strong>Room to improve</strong>At ${rate}%, benefits may be inconsistent. Try keeping bottles visible as a reminder.</div>`;
+    else tip = `<div class="tip-box"><strong>Just getting started</strong>Consistency is key. Even 5 days in a row makes a difference.</div>`;
+    analysisHTML += tip;
   }
-  const keys = Object.keys(log).sort().reverse().slice(0, 20);
-  let historyHTML = keys.length === 0
-    ? `<div class="empty-state"><span class="emoji">📋</span>No entries yet — log today first!</div>`
-    : keys.map(k => `<li class="history-item"><span class="history-date">${formatDate(k)}</span>
-        <span class="badge ${log[k]?'badge-yes':'badge-no'}">${log[k]?'✅ Taken':'❌ Missed'}</span></li>`).join('');
+
+  // Milestones
+  let msHTML = '';
+  let nextMs = null;
+  for (const m of milestones) { if (totalDays < m.days) { nextMs = m; break; } }
+  milestones.forEach(m => {
+    const done = totalDays >= m.days, isNext = !done && nextMs && m.days === nextMs.days;
+    const cls = done ? 'ms-done' : isNext ? 'ms-next' : '';
+    const badge = done ? 'Reached' : isNext ? `${m.days - totalDays} days left` : `${m.days} days`;
+    msHTML += `<div class="ms-row ${cls}"><div class="ms-row-info">
+      <div class="ms-row-title">${m.title}</div>
+      <div class="ms-row-sub">${m.desc.slice(0,65)}...</div></div>
+      <div class="ms-row-badge">${badge}</div></div>`;
+  });
+
+  // History
+  const allDates = new Set();
+  for (const sid in logData) { for (const d in logData[sid]) allDates.add(d); }
+  const sortedDates = [...allDates].sort().reverse().slice(0, 25);
+  let historyHTML = '';
+  if (sortedDates.length === 0) {
+    historyHTML = '<div class="empty-state">No entries yet. Log today to get started.</div>';
+  } else {
+    historyHTML = sortedDates.map(date => {
+      const taken = supplements.filter(s => logData[s.id] && logData[s.id][date] === true).length;
+      const missed = supplements.filter(s => logData[s.id] && logData[s.id][date] === false).length;
+      const total = taken + missed;
+      const cls = total === 0 ? 'badge-no' : taken === total ? 'badge-yes' : taken > 0 ? 'badge-partial' : 'badge-no';
+      const label = total === 0 ? 'No data' : `${taken}/${total} taken`;
+      return `<li class="history-item"><span class="history-date">${formatDate(date)}</span><span class="badge ${cls}">${label}</span></li>`;
+    }).join('');
+  }
+
   document.getElementById('app').innerHTML = `
     <div class="dash-grid">
-      <div class="dash-card" style="animation-delay:0s">${todayHTML}</div>
-      <div class="dash-card" style="animation-delay:0.05s;padding:0;overflow:hidden;border:none;background:transparent;box-shadow:none;">${msCardHTML}</div>
-      <div class="dash-card" style="animation-delay:0.1s"><div class="section-title">📅 Last 14 Days</div><div class="week-dots">${dotsHTML}</div></div>
-      <div class="dash-card" style="animation-delay:0.15s"><div class="section-title">📊 Weekly Analysis</div>${analysisHTML}</div>
-      <div class="dash-card" style="animation-delay:0.2s"><div class="section-title">🏆 Milestones</div><div class="ms-timeline">${msTimelineHTML}</div></div>
-      <div class="dash-card" style="animation-delay:0.25s"><div class="section-title">📋 Log History</div><ul class="history-list">${historyHTML}</ul></div>
+      <div class="dash-card" style="animation-delay:0s">
+        <div class="section-title">Today's Supplements</div>
+        <div class="add-form">
+          <input class="add-input" id="supp-input" type="text" placeholder="Add a supplement..." onkeydown="if(event.key==='Enter')addSupplement()">
+          <button class="add-btn" onclick="addSupplement()">Add</button>
+        </div>
+        ${suppHTML}
+      </div>
+      <div class="dash-card" style="animation-delay:0.05s">
+        <div class="section-title">Milestones</div>
+        <div class="ms-timeline">${msHTML}</div>
+      </div>
+      <div class="dash-card" style="animation-delay:0.1s">
+        <div class="section-title">Last 14 Days</div>
+        <div class="week-dots">${dotsHTML}</div>
+      </div>
+      <div class="dash-card" style="animation-delay:0.15s">
+        <div class="section-title">Weekly Analysis</div>
+        ${analysisHTML}
+      </div>
+      <div class="dash-card" style="animation-delay:0.2s">
+        <div class="section-title">Log History</div>
+        <ul class="history-list">${historyHTML}</ul>
+      </div>
     </div>`;
 }
-async function init() { await fetchLogs(); render(); }
+
+async function init() { await fetchAll(); render(); }
 init();
 </script>
 </body>

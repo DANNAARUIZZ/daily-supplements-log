@@ -3,7 +3,6 @@ from flask_cors import CORS
 import psycopg2
 import psycopg2.extras
 import os
-from datetime import datetime, date, timedelta
 
 app = Flask(__name__)
 CORS(app)
@@ -11,18 +10,26 @@ CORS(app)
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
 def get_db():
-    conn = psycopg2.connect(DATABASE_URL)
-    return conn
+    return psycopg2.connect(DATABASE_URL)
 
 def init_db():
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""
-        CREATE TABLE IF NOT EXISTS logs (
+        CREATE TABLE IF NOT EXISTS supplements (
             id SERIAL PRIMARY KEY,
-            log_date DATE UNIQUE NOT NULL,
-            taken BOOLEAN NOT NULL,
+            name TEXT UNIQUE NOT NULL,
             created_at TIMESTAMP DEFAULT NOW()
+        )
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS supplement_logs (
+            id SERIAL PRIMARY KEY,
+            supplement_id INTEGER REFERENCES supplements(id) ON DELETE CASCADE,
+            log_date DATE NOT NULL,
+            taken BOOLEAN NOT NULL,
+            created_at TIMESTAMP DEFAULT NOW(),
+            UNIQUE(supplement_id, log_date)
         )
     """)
     conn.commit()
@@ -39,29 +46,80 @@ def setup():
 def index():
     return render_template('index.html')
 
+@app.route('/api/supplements', methods=['GET'])
+def get_supplements():
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute("SELECT id, name FROM supplements ORDER BY created_at")
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return jsonify(rows)
+
+@app.route('/api/supplements', methods=['POST'])
+def add_supplement():
+    name = request.json.get('name', '').strip()
+    if not name:
+        return jsonify({'error': 'Name required'}), 400
+    conn = get_db()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    try:
+        cur.execute("INSERT INTO supplements (name) VALUES (%s) RETURNING id, name", (name,))
+        row = cur.fetchone()
+        conn.commit()
+    except psycopg2.errors.UniqueViolation:
+        conn.rollback()
+        cur.close()
+        conn.close()
+        return jsonify({'error': 'Supplement already exists'}), 409
+    cur.close()
+    conn.close()
+    return jsonify(row), 201
+
+@app.route('/api/supplements/<int:sid>', methods=['DELETE'])
+def delete_supplement(sid):
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM supplements WHERE id = %s", (sid,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'success': True})
+
 @app.route('/api/logs', methods=['GET'])
 def get_logs():
     conn = get_db()
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-    cur.execute("SELECT log_date, taken FROM logs ORDER BY log_date DESC LIMIT 100")
+    cur.execute("""
+        SELECT sl.supplement_id, sl.log_date, sl.taken
+        FROM supplement_logs sl
+        ORDER BY sl.log_date DESC
+        LIMIT 500
+    """)
     rows = cur.fetchall()
     cur.close()
     conn.close()
-    result = {str(row['log_date']): row['taken'] for row in rows}
+    result = {}
+    for r in rows:
+        sid = str(r['supplement_id'])
+        if sid not in result:
+            result[sid] = {}
+        result[sid][str(r['log_date'])] = r['taken']
     return jsonify(result)
 
 @app.route('/api/logs', methods=['POST'])
 def save_log():
     data = request.json
+    sid = data.get('supplement_id')
     log_date = data.get('date')
     taken = data.get('taken')
     conn = get_db()
     cur = conn.cursor()
     cur.execute("""
-        INSERT INTO logs (log_date, taken)
-        VALUES (%s, %s)
-        ON CONFLICT (log_date) DO UPDATE SET taken = EXCLUDED.taken
-    """, (log_date, taken))
+        INSERT INTO supplement_logs (supplement_id, log_date, taken)
+        VALUES (%s, %s, %s)
+        ON CONFLICT (supplement_id, log_date) DO UPDATE SET taken = EXCLUDED.taken
+    """, (sid, log_date, taken))
     conn.commit()
     cur.close()
     conn.close()
