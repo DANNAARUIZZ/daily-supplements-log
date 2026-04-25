@@ -20,6 +20,7 @@
     --muted: #7a7060;
     --border: #e8e0d0;
     --shadow: 0 4px 24px rgba(45,106,79,0.10);
+    --sidebar-w: 300px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -27,320 +28,131 @@
     background: var(--bg);
     color: var(--text);
     min-height: 100vh;
+    display: flex;
     background-image:
-      radial-gradient(ellipse at 10% 20%, rgba(82,183,136,0.12) 0%, transparent 50%),
-      radial-gradient(ellipse at 90% 80%, rgba(224,122,47,0.10) 0%, transparent 50%);
+      radial-gradient(ellipse at 10% 20%, rgba(82,183,136,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 80%, rgba(224,122,47,0.06) 0%, transparent 50%);
   }
-  header {
+  .sidebar {
+    width: var(--sidebar-w);
+    min-height: 100vh;
     background: var(--green);
     color: white;
-    padding: 28px 24px 24px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  header::before {
-    content: '';
-    position: absolute;
-    top: -40px; right: -40px;
-    width: 180px; height: 180px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.06);
-  }
-  header::after {
-    content: '';
-    position: absolute;
-    bottom: -60px; left: -20px;
-    width: 140px; height: 140px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.04);
-  }
-  header h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 2rem;
-    font-weight: 900;
-    letter-spacing: -0.5px;
-    position: relative;
-  }
-  header p {
-    font-size: 0.85rem;
-    opacity: 0.75;
-    margin-top: 4px;
-    font-weight: 300;
-    position: relative;
-  }
-  .container {
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 24px 16px 48px;
-  }
-  .today-card {
-    background: var(--card);
-    border-radius: 20px;
-    padding: 28px 24px;
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
-    border: 1px solid var(--border);
-    animation: slideUp 0.5s ease;
-  }
-  @keyframes slideUp {
-    from { opacity:0; transform: translateY(16px); }
-    to   { opacity:1; transform: translateY(0); }
-  }
-  .today-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 6px;
-  }
-  .today-date {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--green);
-    margin-bottom: 20px;
-  }
-  .question {
-    font-size: 1.1rem;
-    font-weight: 500;
-    margin-bottom: 16px;
-  }
-  .btn-row { display: flex; gap: 12px; }
-  .btn {
-    flex: 1;
-    padding: 16px;
-    border: none;
-    border-radius: 14px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    padding: 32px 24px;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 10;
+    overflow-y: auto;
   }
+  .sidebar h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem; font-weight: 900;
+    letter-spacing: -0.5px; margin-bottom: 4px;
+  }
+  .sidebar .subtitle {
+    font-size: 0.78rem; opacity: 0.65;
+    font-weight: 300; margin-bottom: 32px; line-height: 1.4;
+  }
+  .sidebar-stats { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
+  .sidebar-stat { background: rgba(255,255,255,0.1); border-radius: 14px; padding: 16px; text-align: center; }
+  .sidebar-stat-value { font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 900; line-height: 1; }
+  .sidebar-stat-label { font-size: 0.72rem; opacity: 0.7; font-weight: 500; margin-top: 4px; }
+  .sidebar-footer { margin-top: auto; font-size: 0.72rem; opacity: 0.5; text-align: center; padding-top: 24px; }
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 32px 40px 48px; min-height: 100vh; }
+  .main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+  .main-header-date { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: var(--green); }
+  .main-header-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+  .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  .dash-card { background: var(--card); border-radius: 20px; padding: 24px; box-shadow: var(--shadow); border: 1px solid var(--border); animation: slideUp 0.5s ease both; }
+  .dash-card.span-2 { grid-column: span 2; }
+  @keyframes slideUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
+  .question { font-size: 1.1rem; font-weight: 500; margin-bottom: 16px; }
+  .btn-row { display: flex; gap: 12px; }
+  .btn { flex: 1; padding: 16px; border: none; border-radius: 14px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
   .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
   .btn-yes { background: var(--green); color: white; }
   .btn-yes:hover:not(:disabled) { background: #245a40; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(45,106,79,0.3); }
   .btn-no { background: var(--red-pale); color: var(--red); border: 1.5px solid rgba(193,68,14,0.2); }
   .btn-no:hover:not(:disabled) { background: #fad4c8; transform: translateY(-2px); }
-  .already-logged {
-    text-align: center;
-    padding: 20px;
-    border-radius: 14px;
-    font-weight: 500;
-    font-size: 1rem;
-  }
+  .already-logged { text-align: center; padding: 20px; border-radius: 14px; font-weight: 500; font-size: 1rem; }
   .logged-yes { background: var(--green-pale); color: var(--green); }
   .logged-no  { background: var(--red-pale); color: var(--red); }
-  .stats-row {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-  .stat-card {
-    background: var(--card);
-    border-radius: 16px;
-    padding: 18px 14px;
-    text-align: center;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    animation: slideUp 0.5s ease 0.1s both;
-  }
-  .stat-value {
-    font-family: 'Playfair Display', serif;
-    font-size: 2rem;
-    font-weight: 900;
-    color: var(--green);
-    line-height: 1;
-  }
-  .stat-label {
-    font-size: 0.72rem;
-    color: var(--muted);
-    font-weight: 500;
-    margin-top: 4px;
-  }
-  .streak-card {
-    background: var(--card);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    animation: slideUp 0.5s ease 0.15s both;
-  }
-  .section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 14px;
-    color: var(--text);
-  }
+  .section-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 14px; color: var(--text); }
   .week-dots { display: flex; gap: 8px; flex-wrap: wrap; }
-  .dot {
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.65rem;
-    font-weight: 600;
-    flex-direction: column;
-    gap: 2px;
-    transition: transform 0.2s;
-    cursor: default;
-  }
+  .dot { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 600; flex-direction: column; gap: 2px; transition: transform 0.2s; cursor: default; }
   .dot:hover { transform: scale(1.1); }
-  .dot-yes   { background: var(--green); color: white; }
-  .dot-no    { background: var(--red-pale); color: var(--red); }
+  .dot-yes { background: var(--green); color: white; }
+  .dot-no { background: var(--red-pale); color: var(--red); }
   .dot-empty { background: var(--border); color: var(--muted); }
-  .dot span  { font-size: 0.6rem; opacity: 0.8; }
-  .milestone-card {
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 20px;
-    animation: slideUp 0.5s ease 0.2s both;
-    border: 1px solid transparent;
-  }
-  .milestone-active {
-    background: linear-gradient(135deg, #2d6a4f 0%, #52b788 100%);
-    color: white;
-  }
-  .milestone-upcoming {
-    background: var(--card);
-    border-color: var(--border);
-    box-shadow: var(--shadow);
-  }
+  .dot span { font-size: 0.6rem; opacity: 0.8; }
+  .milestone-card { border-radius: 20px; padding: 24px; animation: slideUp 0.5s ease 0.2s both; border: 1px solid transparent; }
+  .milestone-active { background: linear-gradient(135deg, #2d6a4f 0%, #52b788 100%); color: white; }
+  .milestone-upcoming { background: var(--card); border-color: var(--border); box-shadow: var(--shadow); }
   .milestone-icon { font-size: 2rem; margin-bottom: 8px; }
-  .milestone-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 6px;
-  }
+  .milestone-title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
   .milestone-desc { font-size: 0.88rem; line-height: 1.5; opacity: 0.9; }
-  .milestone-progress {
-    margin-top: 14px;
-    background: rgba(255,255,255,0.25);
-    border-radius: 99px;
-    height: 6px;
-    overflow: hidden;
-  }
-  .milestone-progress-bar {
-    height: 100%;
-    background: white;
-    border-radius: 99px;
-    transition: width 1s ease;
-  }
+  .milestone-progress { margin-top: 14px; background: rgba(255,255,255,0.25); border-radius: 99px; height: 6px; overflow: hidden; }
+  .milestone-progress-bar { height: 100%; background: white; border-radius: 99px; transition: width 1s ease; }
   .milestone-upcoming .milestone-progress { background: var(--border); }
   .milestone-upcoming .milestone-progress-bar { background: var(--green-light); }
   .milestone-days { font-size: 0.75rem; margin-top: 6px; opacity: 0.8; }
-  .analysis-card {
-    background: var(--card);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    animation: slideUp 0.5s ease 0.25s both;
-  }
-  .analysis-bar-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 10px;
-  }
+  .analysis-bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
   .analysis-bar-label { font-size: 0.8rem; color: var(--muted); width: 70px; flex-shrink: 0; }
-  .analysis-bar-track {
-    flex: 1;
-    height: 10px;
-    background: var(--border);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-  .analysis-bar-fill {
-    height: 100%;
-    border-radius: 99px;
-    background: var(--green);
-    transition: width 1s ease;
-  }
+  .analysis-bar-track { flex: 1; height: 10px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .analysis-bar-fill { height: 100%; border-radius: 99px; background: var(--green); transition: width 1s ease; }
   .analysis-pct { font-size: 0.8rem; font-weight: 600; color: var(--green); width: 36px; text-align: right; }
-  .tip-box {
-    background: var(--amber-pale);
-    border-radius: 12px;
-    padding: 14px 16px;
-    margin-top: 14px;
-    font-size: 0.85rem;
-    line-height: 1.5;
-    color: #7a4010;
-    border-left: 3px solid var(--amber);
-  }
+  .tip-box { background: var(--amber-pale); border-radius: 12px; padding: 14px 16px; margin-top: 14px; font-size: 0.85rem; line-height: 1.5; color: #7a4010; border-left: 3px solid var(--amber); }
   .tip-box strong { display: block; margin-bottom: 4px; color: var(--amber); }
-  .history-card {
-    background: var(--card);
-    border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    animation: slideUp 0.5s ease 0.3s both;
-  }
   .history-list { list-style: none; }
-  .history-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-    font-size: 0.88rem;
-  }
+  .history-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
   .history-item:last-child { border-bottom: none; }
   .history-date { color: var(--muted); }
-  .badge {
-    padding: 4px 12px;
-    border-radius: 99px;
-    font-size: 0.75rem;
-    font-weight: 600;
-  }
+  .badge { padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 600; }
   .badge-yes { background: var(--green-pale); color: var(--green); }
   .badge-no  { background: var(--red-pale); color: var(--red); }
-  .empty-state {
-    text-align: center;
-    padding: 32px 16px;
-    color: var(--muted);
-    font-size: 0.9rem;
-  }
+  .ms-timeline { display: flex; flex-direction: column; gap: 16px; }
+  .ms-row { display: flex; align-items: center; gap: 14px; padding: 12px 14px; border-radius: 14px; background: rgba(0,0,0,0.02); border: 1px solid var(--border); transition: background 0.2s; }
+  .ms-row.ms-done { background: var(--green-pale); border-color: var(--green-light); }
+  .ms-row.ms-next { background: var(--amber-pale); border-color: var(--amber); }
+  .ms-row-icon { font-size: 1.5rem; flex-shrink: 0; }
+  .ms-row-info { flex: 1; }
+  .ms-row-title { font-weight: 600; font-size: 0.88rem; }
+  .ms-row-sub { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+  .ms-row-badge { font-size: 0.7rem; font-weight: 600; padding: 3px 10px; border-radius: 99px; flex-shrink: 0; }
+  .ms-row.ms-done .ms-row-badge { background: var(--green); color: white; }
+  .ms-row.ms-next .ms-row-badge { background: var(--amber); color: white; }
+  .ms-row .ms-row-badge { background: var(--border); color: var(--muted); }
+  .empty-state { text-align: center; padding: 32px 16px; color: var(--muted); font-size: 0.9rem; }
   .empty-state .emoji { font-size: 2.5rem; display: block; margin-bottom: 10px; }
-  .loading {
-    text-align: center;
-    padding: 40px;
-    color: var(--muted);
-    font-size: 0.9rem;
-  }
-  footer {
-    text-align: center;
-    font-size: 0.75rem;
-    color: var(--muted);
-    padding: 16px;
+  @media (max-width: 1024px) { .dash-grid { grid-template-columns: 1fr; } .dash-card.span-2 { grid-column: span 1; } }
+  @media (max-width: 768px) {
+    .sidebar { position: relative; width: 100%; min-height: auto; flex-direction: row; flex-wrap: wrap; padding: 20px; align-items: center; gap: 12px; }
+    .sidebar h1 { font-size: 1.2rem; } .sidebar .subtitle { margin-bottom: 0; }
+    .sidebar-stats { flex-direction: row; gap: 8px; width: 100%; }
+    .sidebar-stat { flex: 1; padding: 10px; } .sidebar-stat-value { font-size: 1.5rem; }
+    .sidebar-footer { display: none; } body { flex-direction: column; }
+    .main { margin-left: 0; padding: 20px 16px 40px; }
   }
 </style>
 </head>
 <body>
-
-<header>
-  <h1>🌿 Daily Supplement Log</h1>
-  <p>Garden of Life Raw One · Magnesium Glycinate</p>
-</header>
-
-<div class="container">
-  <div id="app"><div class="loading">Loading...</div></div>
+<aside class="sidebar" id="sidebar">
+  <h1>🌿 Supplement Log</h1>
+  <p class="subtitle">Garden of Life Raw One · Magnesium Glycinate</p>
+  <div class="sidebar-stats" id="sidebar-stats"></div>
+  <div class="sidebar-footer">Stay consistent — every day counts 💚</div>
+</aside>
+<div class="main">
+  <div class="main-header">
+    <div>
+      <div class="main-header-label">Today</div>
+      <div class="main-header-date" id="header-date"></div>
+    </div>
+  </div>
+  <div id="app"><div style="text-align:center;padding:40px;color:var(--muted);">Loading...</div></div>
 </div>
-
-<footer>Stay consistent — every day counts 💚</footer>
-
 <script>
 const milestones = [
   { days: 7,  icon: '😴', title: 'Week 1 — Sleep & Recovery',
@@ -354,28 +166,18 @@ const milestones = [
   { days: 90, icon: '🌟', title: 'Month 3 — Full Effect',
     desc: 'All nutrients at optimal levels. Sustained energy, strong immunity, better focus and mood. Full benefit zone!' },
 ];
-
 let logData = {};
-
-function todayKey() {
-  return new Date().toISOString().slice(0, 10);
-}
+function todayKey() { return new Date().toISOString().slice(0, 10); }
 function formatDate(key) {
   const d = new Date(key + 'T12:00:00');
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 }
-function getTotalYes(log) {
-  return Object.values(log).filter(v => v === true).length;
-}
-function getTotalLogged(log) {
-  return Object.keys(log).length;
-}
+function getTotalYes(log) { return Object.values(log).filter(v => v === true).length; }
+function getTotalLogged(log) { return Object.keys(log).length; }
 function getStreak(log) {
-  let streak = 0;
-  const today = new Date();
+  let streak = 0; const today = new Date();
   for (let i = 0; i < 365; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
+    const d = new Date(today); d.setDate(today.getDate() - i);
     const key = d.toISOString().slice(0, 10);
     if (log[key] === true) streak++;
     else if (log[key] === false) break;
@@ -383,51 +185,36 @@ function getStreak(log) {
   }
   return streak;
 }
-
-async function fetchLogs() {
-  const res = await fetch('/api/logs');
-  logData = await res.json();
-}
-
+async function fetchLogs() { const res = await fetch('/api/logs'); logData = await res.json(); }
 async function logToday(taken) {
-  const today = todayKey();
-  // Optimistic update
-  logData[today] = taken;
-  render();
-  await fetch('/api/logs', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ date: today, taken })
-  });
+  logData[todayKey()] = taken; render();
+  await fetch('/api/logs', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ date: todayKey(), taken }) });
 }
-
 function render() {
-  const log = logData;
-  const today = todayKey();
-  const totalYes = getTotalYes(log);
-  const totalLogged = getTotalLogged(log);
+  const log = logData, today = todayKey();
+  const totalYes = getTotalYes(log), totalLogged = getTotalLogged(log);
   const streak = getStreak(log);
   const rate = totalLogged ? Math.round((totalYes / totalLogged) * 100) : 0;
-
-  // Today action
+  document.getElementById('header-date').textContent = formatDate(today);
+  document.getElementById('sidebar-stats').innerHTML = `
+    <div class="sidebar-stat"><div class="sidebar-stat-value">${totalYes}</div><div class="sidebar-stat-label">Days Taken</div></div>
+    <div class="sidebar-stat"><div class="sidebar-stat-value">${streak}</div><div class="sidebar-stat-label">🔥 Current Streak</div></div>
+    <div class="sidebar-stat"><div class="sidebar-stat-value">${rate}%</div><div class="sidebar-stat-label">Compliance Rate</div></div>
+    <div class="sidebar-stat"><div class="sidebar-stat-value">${totalLogged}</div><div class="sidebar-stat-label">Total Logged</div></div>`;
   let todayHTML = '';
   if (log[today] === undefined) {
-    todayHTML = `
-      <div class="btn-row">
-        <button class="btn btn-yes" onclick="logToday(true)">✅ Yes, taken!</button>
-        <button class="btn btn-no"  onclick="logToday(false)">❌ Not today</button>
-      </div>`;
+    todayHTML = `<div class="question">Were the supplements taken today? 💊</div>
+      <div class="btn-row"><button class="btn btn-yes" onclick="logToday(true)">✅ Yes, taken!</button>
+      <button class="btn btn-no" onclick="logToday(false)">❌ Not today</button></div>`;
   } else if (log[today] === true) {
     todayHTML = `<div class="already-logged logged-yes">✅ Logged as taken today — great job! 💪</div>`;
   } else {
     todayHTML = `<div class="already-logged logged-no">❌ Logged as missed today — tomorrow is a new day! 🌱</div>`;
   }
-
-  // Last 14 dots
   let dotsHTML = '';
   for (let i = 13; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
+    const d = new Date(); d.setDate(d.getDate() - i);
     const key = d.toISOString().slice(0, 10);
     const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 2);
     const val = log[key];
@@ -435,133 +222,70 @@ function render() {
     const icon = val === true ? '✓' : val === false ? '✗' : '·';
     dotsHTML += `<div class="dot ${cls}" title="${formatDate(key)}">${icon}<span>${dayName}</span></div>`;
   }
-
-  // Milestone
-  let msHTML = '';
-  let currentMs = null, nextMs = null;
-  for (let i = milestones.length - 1; i >= 0; i--) {
-    if (totalYes >= milestones[i].days) { currentMs = milestones[i]; break; }
-  }
-  for (let m of milestones) {
-    if (totalYes < m.days) { nextMs = m; break; }
-  }
+  let msCardHTML = '', currentMs = null, nextMs = null;
+  for (let i = milestones.length - 1; i >= 0; i--) { if (totalYes >= milestones[i].days) { currentMs = milestones[i]; break; } }
+  for (let m of milestones) { if (totalYes < m.days) { nextMs = m; break; } }
   if (currentMs) {
     const pct = Math.min(100, Math.round((totalYes / (nextMs ? nextMs.days : currentMs.days)) * 100));
-    msHTML = `
-      <div class="milestone-card milestone-active">
-        <div class="milestone-icon">${currentMs.icon}</div>
-        <div class="milestone-title">${currentMs.title}</div>
-        <div class="milestone-desc">${currentMs.desc}</div>
-        ${nextMs ? `
-          <div class="milestone-progress"><div class="milestone-progress-bar" style="width:${pct}%"></div></div>
-          <div class="milestone-days">${totalYes} / ${nextMs.days} days → next: ${nextMs.icon} ${nextMs.title.split('—')[1].trim()}</div>
-        ` : '<div class="milestone-days" style="margin-top:10px">🎉 All milestones reached!</div>'}
-      </div>`;
+    msCardHTML = `<div class="milestone-card milestone-active"><div class="milestone-icon">${currentMs.icon}</div>
+      <div class="milestone-title">${currentMs.title}</div><div class="milestone-desc">${currentMs.desc}</div>
+      ${nextMs ? `<div class="milestone-progress"><div class="milestone-progress-bar" style="width:${pct}%"></div></div>
+      <div class="milestone-days">${totalYes} / ${nextMs.days} days → next: ${nextMs.icon} ${nextMs.title.split('—')[1].trim()}</div>`
+      : '<div class="milestone-days" style="margin-top:10px">🎉 All milestones reached!</div>'}</div>`;
   } else if (nextMs) {
     const pct = Math.min(100, Math.round((totalYes / nextMs.days) * 100));
-    msHTML = `
-      <div class="milestone-card milestone-upcoming">
-        <div class="milestone-icon">${nextMs.icon}</div>
-        <div class="milestone-title">Next Milestone: ${nextMs.title}</div>
-        <div class="milestone-desc">${nextMs.desc}</div>
-        <div class="milestone-progress"><div class="milestone-progress-bar" style="width:${pct}%"></div></div>
-        <div class="milestone-days" style="color:var(--muted);margin-top:6px;font-size:0.75rem">${totalYes} / ${nextMs.days} days</div>
-      </div>`;
+    msCardHTML = `<div class="milestone-card milestone-upcoming"><div class="milestone-icon">${nextMs.icon}</div>
+      <div class="milestone-title">Next: ${nextMs.title}</div><div class="milestone-desc">${nextMs.desc}</div>
+      <div class="milestone-progress"><div class="milestone-progress-bar" style="width:${pct}%"></div></div>
+      <div class="milestone-days" style="color:var(--muted);margin-top:6px;font-size:0.75rem">${totalYes} / ${nextMs.days} days</div></div>`;
   }
-
-  // Weekly analysis
+  let msTimelineHTML = '';
+  milestones.forEach(m => {
+    const done = totalYes >= m.days, isNext = !done && (nextMs && m.days === nextMs.days);
+    const cls = done ? 'ms-done' : isNext ? 'ms-next' : '';
+    const badge = done ? 'Reached' : isNext ? `${m.days - totalYes} days left` : `${m.days} days`;
+    msTimelineHTML += `<div class="ms-row ${cls}"><div class="ms-row-icon">${m.icon}</div>
+      <div class="ms-row-info"><div class="ms-row-title">${m.title}</div>
+      <div class="ms-row-sub">${m.desc.slice(0, 60)}…</div></div>
+      <div class="ms-row-badge">${badge}</div></div>`;
+  });
   let analysisHTML = '';
   if (totalLogged === 0) {
     analysisHTML = `<div class="empty-state"><span class="emoji">📊</span>Start logging to see your weekly analysis!</div>`;
   } else {
-    const weeks = [
-      { label: 'This week', offset: 0 },
-      { label: 'Last week', offset: 7 },
-      { label: '3 weeks',   offset: 14 },
-      { label: '4 weeks',   offset: 21 },
-    ];
+    const weeks = [{label:'This week',offset:0},{label:'Last week',offset:7},{label:'3 weeks',offset:14},{label:'4 weeks',offset:21}];
     let barsHTML = '';
     weeks.forEach(w => {
       let yes = 0, total = 0;
-      for (let i = 0; i < 7; i++) {
-        const d = new Date();
-        d.setDate(d.getDate() - w.offset - i);
-        const key = d.toISOString().slice(0, 10);
-        if (log[key] !== undefined) { total++; if (log[key]) yes++; }
-      }
-      const pct = total ? Math.round((yes / total) * 100) : 0;
-      barsHTML += `
-        <div class="analysis-bar-row">
-          <div class="analysis-bar-label">${w.label}</div>
-          <div class="analysis-bar-track"><div class="analysis-bar-fill" style="width:${pct}%"></div></div>
-          <div class="analysis-pct">${total ? pct + '%' : '—'}</div>
-        </div>`;
+      for (let i = 0; i < 7; i++) { const d = new Date(); d.setDate(d.getDate()-w.offset-i); const key = d.toISOString().slice(0,10); if (log[key]!==undefined){total++;if(log[key])yes++;} }
+      const pct = total ? Math.round((yes/total)*100) : 0;
+      barsHTML += `<div class="analysis-bar-row"><div class="analysis-bar-label">${w.label}</div>
+        <div class="analysis-bar-track"><div class="analysis-bar-fill" style="width:${pct}%"></div></div>
+        <div class="analysis-pct">${total ? pct+'%' : '—'}</div></div>`;
     });
     let tip = '';
-    if (rate >= 90) tip = `<div class="tip-box"><strong>🌟 Excellent consistency!</strong>At ${rate}% compliance, full supplement benefits are being reached. Keep it up — the 3-month mark is where the real magic happens!</div>`;
-    else if (rate >= 70) tip = `<div class="tip-box"><strong>💪 Good progress!</strong>At ${rate}%, doing well. Try tying the vitamins to a specific dinner habit — same plate, same time — to push toward 90%+.</div>`;
-    else if (rate >= 50) tip = `<div class="tip-box"><strong>⚡ Room to improve.</strong>At ${rate}%, some benefits may be inconsistent. Try leaving the bottles visible on the dinner table as a visual reminder!</div>`;
-    else tip = `<div class="tip-box"><strong>🌱 Just getting started.</strong>Consistency is key — even 5 days in a row makes a difference. Small habits add up!</div>`;
+    if (rate >= 90) tip = `<div class="tip-box"><strong>🌟 Excellent consistency!</strong>At ${rate}% compliance, full supplement benefits are being reached. Keep it up!</div>`;
+    else if (rate >= 70) tip = `<div class="tip-box"><strong>💪 Good progress!</strong>At ${rate}%, doing well. Try tying the vitamins to a specific dinner habit to push toward 90%+.</div>`;
+    else if (rate >= 50) tip = `<div class="tip-box"><strong>⚡ Room to improve.</strong>At ${rate}%, some benefits may be inconsistent. Try leaving the bottles visible as a reminder!</div>`;
+    else tip = `<div class="tip-box"><strong>🌱 Just getting started.</strong>Consistency is key — even 5 days in a row makes a difference!</div>`;
     analysisHTML = barsHTML + tip;
   }
-
-  // History
   const keys = Object.keys(log).sort().reverse().slice(0, 20);
   let historyHTML = keys.length === 0
     ? `<div class="empty-state"><span class="emoji">📋</span>No entries yet — log today first!</div>`
-    : keys.map(k => `
-        <li class="history-item">
-          <span class="history-date">${formatDate(k)}</span>
-          <span class="badge ${log[k] ? 'badge-yes' : 'badge-no'}">${log[k] ? '✅ Taken' : '❌ Missed'}</span>
-        </li>`).join('');
-
+    : keys.map(k => `<li class="history-item"><span class="history-date">${formatDate(k)}</span>
+        <span class="badge ${log[k]?'badge-yes':'badge-no'}">${log[k]?'✅ Taken':'❌ Missed'}</span></li>`).join('');
   document.getElementById('app').innerHTML = `
-    <div class="today-card">
-      <div class="today-label">Today</div>
-      <div class="today-date">${formatDate(today)}</div>
-      <div class="question">Were the supplements taken today? 💊</div>
-      ${todayHTML}
-    </div>
-
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-value">${totalYes}</div>
-        <div class="stat-label">Days Taken</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">${streak}</div>
-        <div class="stat-label">🔥 Streak</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">${rate}%</div>
-        <div class="stat-label">Compliance</div>
-      </div>
-    </div>
-
-    <div class="streak-card">
-      <div class="section-title">Last 14 Days</div>
-      <div class="week-dots">${dotsHTML}</div>
-    </div>
-
-    ${msHTML}
-
-    <div class="analysis-card">
-      <div class="section-title">📊 Weekly Analysis</div>
-      ${analysisHTML}
-    </div>
-
-    <div class="history-card">
-      <div class="section-title">📋 Log History</div>
-      <ul class="history-list">${historyHTML}</ul>
-    </div>
-  `;
+    <div class="dash-grid">
+      <div class="dash-card" style="animation-delay:0s">${todayHTML}</div>
+      <div class="dash-card" style="animation-delay:0.05s;padding:0;overflow:hidden;border:none;background:transparent;box-shadow:none;">${msCardHTML}</div>
+      <div class="dash-card" style="animation-delay:0.1s"><div class="section-title">📅 Last 14 Days</div><div class="week-dots">${dotsHTML}</div></div>
+      <div class="dash-card" style="animation-delay:0.15s"><div class="section-title">📊 Weekly Analysis</div>${analysisHTML}</div>
+      <div class="dash-card" style="animation-delay:0.2s"><div class="section-title">🏆 Milestones</div><div class="ms-timeline">${msTimelineHTML}</div></div>
+      <div class="dash-card" style="animation-delay:0.25s"><div class="section-title">📋 Log History</div><ul class="history-list">${historyHTML}</ul></div>
+    </div>`;
 }
-
-async function init() {
-  await fetchLogs();
-  render();
-}
-
+async function init() { await fetchLogs(); render(); }
 init();
 </script>
 </body>
