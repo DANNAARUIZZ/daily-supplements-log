@@ -231,6 +231,7 @@ function getMilestonesFor(name) {
 }
 
 let supplements = [], logData = {};
+let selectedDate = null; // null means today
 
 // Use local date instead of UTC to avoid timezone off-by-one day issues
 function localDateKey(d) {
@@ -309,12 +310,16 @@ async function deleteSupplement(id) {
   render();
 }
 async function logSupplement(sid, taken) {
-  const today = todayKey();
+  const dateKey = selectedDate || todayKey();
   if (!logData[sid]) logData[sid] = {};
-  logData[sid][today] = taken;
+  logData[sid][dateKey] = taken;
   render();
   await fetch('/api/logs', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ supplement_id: sid, date: today, taken }) });
+    body: JSON.stringify({ supplement_id: sid, date: dateKey, taken }) });
+}
+function selectDate(val) {
+  selectedDate = val || null;
+  render();
 }
 
 function render() {
@@ -328,17 +333,21 @@ function render() {
     <div class="sidebar-stat"><div class="sidebar-stat-value">${supplements.length}</div><div class="sidebar-stat-label">Supplements</div></div>`;
 
   // Today's supplement list
+  const activeDate = selectedDate || today;
+  const isToday = activeDate === today;
+  const dateLabel = isToday ? 'Today' : formatDate(activeDate);
+
   let suppHTML = '';
   if (supplements.length === 0) {
     suppHTML = '<div class="empty-state">No supplements added yet. Add one above to start tracking.</div>';
   } else {
     suppHTML = '<div class="supp-list">';
     for (const s of supplements) {
-      const todayVal = logData[s.id] && logData[s.id][today];
+      const val = logData[s.id] && logData[s.id][activeDate];
       let actionHTML = '';
-      if (todayVal === true) {
+      if (val === true) {
         actionHTML = `<span class="supp-status status-taken">Taken</span>`;
-      } else if (todayVal === false) {
+      } else if (val === false) {
         actionHTML = `<span class="supp-status status-missed">Missed</span>`;
       } else {
         actionHTML = `<button class="supp-btn supp-btn-yes" onclick="logSupplement(${s.id},true)">Taken</button>
@@ -453,7 +462,14 @@ function render() {
   document.getElementById('app').innerHTML = `
     <div class="dash-grid">
       <div class="dash-card" style="animation-delay:0s">
-        <div class="section-title">Today's Supplements</div>
+        <div class="section-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+          <span>Supplements — ${dateLabel}</span>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="date" value="${activeDate}" max="${today}" onchange="selectDate(this.value)"
+              style="font-family:Inter,sans-serif;font-size:0.78rem;padding:5px 8px;border:1.5px solid var(--border);border-radius:8px;background:white;color:var(--text);cursor:pointer">
+            ${!isToday ? `<button onclick="selectDate(null)" class="supp-btn" style="background:var(--green);color:white;padding:5px 10px;font-size:0.72rem">Back to today</button>` : ''}
+          </div>
+        </div>
         <div class="add-form">
           <input class="add-input" id="supp-input" type="text" placeholder="Add a supplement..." onkeydown="if(event.key==='Enter')addSupplement()">
           <button class="add-btn" onclick="addSupplement()">Add</button>
