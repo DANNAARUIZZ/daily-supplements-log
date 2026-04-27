@@ -197,16 +197,47 @@
   <div id="app"><div style="text-align:center;padding:40px;color:var(--muted);">Loading...</div></div>
 </div>
 <script>
-const msLevels = [
-  { days: 7,  label: 'Week 1', desc: 'The supplement should be starting to take effect. Early benefits like improved sleep and recovery may begin.' },
-  { days: 14, label: 'Week 2', desc: 'Nutrient levels building up. More consistent energy and fewer crashes throughout the day.' },
-  { days: 30, label: 'Month 1', desc: 'Noticeable improvements in recovery, less fatigue, and better resilience to daily stress.' },
-  { days: 60, label: 'Month 2', desc: 'Stronger immune function, healthier skin, and more stable mood and focus.' },
-  { days: 90, label: 'Month 3 — Full Effect', desc: 'Optimal nutrient levels reached. Full benefits across energy, immunity, focus, and overall wellbeing.' },
-];
+// Supplement-specific milestone descriptions based on actual benefits (sources: Healthline, Mayo Clinic, Love Life Supplements)
+const suppMilestones = {
+  'magnesium glycinate': [
+    { days: 7,  label: 'Week 1', desc: 'Early calming effects. Subtle improvements in sleep quality and reduced muscle twitches or cramps.' },
+    { days: 14, label: 'Week 2', desc: 'Deeper, more restful sleep. Reduced anxiety and muscle tension becoming more noticeable.' },
+    { days: 30, label: 'Month 1', desc: 'Steady mood improvements, fewer headaches, and better stress resilience. Muscle recovery noticeably faster.' },
+    { days: 60, label: 'Month 2', desc: 'Blood pressure and blood sugar regulation improving. Heart rhythm more stable. Consistent calm energy.' },
+    { days: 90, label: 'Month 3 — Full Effect', desc: 'Magnesium stores fully replenished. Optimal nerve function, bone support, and long-term cardiovascular benefits.' },
+  ],
+  'vitamin code raw one': [
+    { days: 7,  label: 'Week 1', desc: 'B vitamins absorbing quickly. Early energy boost and reduced afternoon fatigue.' },
+    { days: 14, label: 'Week 2', desc: 'Vitamin C and E building up. Better immune response and early antioxidant protection.' },
+    { days: 30, label: 'Month 1', desc: 'Zinc and selenium supporting prostate health. Vitamin D levels rising, improving mood and bone strength.' },
+    { days: 60, label: 'Month 2', desc: 'CoQ10 supporting heart health. Stronger immunity, healthier skin from vitamin A, and sustained daily energy.' },
+    { days: 90, label: 'Month 3 — Full Effect', desc: 'All nutrient levels optimized. Full-spectrum benefits: energy, immunity, heart health, prostate support, and mental clarity.' },
+  ],
+  '_default': [
+    { days: 7,  label: 'Week 1', desc: 'Initial absorption phase. Early subtle effects may begin as nutrient levels start building.' },
+    { days: 14, label: 'Week 2', desc: 'Consistent intake paying off. Noticeable improvements in energy and general wellbeing.' },
+    { days: 30, label: 'Month 1', desc: 'Meaningful benefits emerging. Body adapting to sustained nutrient levels.' },
+    { days: 60, label: 'Month 2', desc: 'Deeper systemic benefits. Immune function, recovery, and mood noticeably improved.' },
+    { days: 90, label: 'Month 3 — Full Effect', desc: 'Optimal levels reached. Full long-term benefits across energy, immunity, and overall health.' },
+  ],
+};
+
+function getMilestonesFor(name) {
+  const lower = name.toLowerCase();
+  for (const key in suppMilestones) {
+    if (key !== '_default' && lower.includes(key)) return suppMilestones[key];
+  }
+  return suppMilestones['_default'];
+}
+
 let supplements = [], logData = {};
 
-function todayKey() { return new Date().toISOString().slice(0, 10); }
+// Use local date instead of UTC to avoid timezone off-by-one day issues
+function localDateKey(d) {
+  const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+function todayKey() { return localDateKey(new Date()); }
 function formatDate(key) {
   const d = new Date(key + 'T12:00:00');
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
@@ -228,7 +259,7 @@ function suppStreak(sid) {
   let streak = 0; const today = new Date(); const slog = logData[sid] || {};
   for (let i = 0; i < 365; i++) {
     const d = new Date(today); d.setDate(today.getDate() - i);
-    const key = d.toISOString().slice(0, 10);
+    const key = localDateKey(d);
     if (slog[key] === true) streak++;
     else if (slog[key] === false) break;
     else if (i > 0) break;
@@ -239,7 +270,7 @@ function suppWeekPct(sid, offset) {
   let yes = 0, total = 0; const slog = logData[sid] || {};
   for (let i = 0; i < 7; i++) {
     const d = new Date(); d.setDate(d.getDate() - offset - i);
-    const key = d.toISOString().slice(0, 10);
+    const key = localDateKey(d);
     if (slog[key] !== undefined) { total++; if (slog[key]) yes++; }
   }
   return total ? Math.round((yes / total) * 100) : -1;
@@ -331,12 +362,13 @@ function render() {
     for (const s of supplements) {
       const days = suppDaysTaken(s.id);
       const streak = suppStreak(s.id);
+      const ms = getMilestonesFor(s.name);
       let nextMs = null;
-      for (const m of msLevels) { if (days < m.days) { nextMs = m; break; } }
+      for (const m of ms) { if (days < m.days) { nextMs = m; break; } }
       msHTML += `<div class="supp-section"><div class="supp-section-name">${s.name}</div>`;
       msHTML += `<div class="supp-section-stats"><span>${days}</span> days taken · <span>${streak}</span> day streak · <span>${suppRate(s.id)}%</span> rate</div>`;
       msHTML += '<div class="ms-timeline">';
-      msLevels.forEach(m => {
+      ms.forEach(m => {
         const done = days >= m.days, isNext = !done && nextMs && m.days === nextMs.days;
         const cls = done ? 'ms-done' : isNext ? 'ms-next' : '';
         const badge = done ? 'Reached' : isNext ? `${m.days - days} to go` : `${m.days} days`;
@@ -361,7 +393,7 @@ function render() {
       const slog = logData[s.id] || {};
       for (let i = 13; i >= 0; i--) {
         const d = new Date(); d.setDate(d.getDate() - i);
-        const key = d.toISOString().slice(0, 10);
+        const key = localDateKey(d);
         const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 2);
         const val = slog[key];
         const cls = val === true ? 'dot-yes' : val === false ? 'dot-no' : 'dot-empty';
