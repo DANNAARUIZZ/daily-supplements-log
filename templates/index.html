@@ -109,7 +109,6 @@
   .dot-yes { background: var(--green); color: white; }
   .dot-no { background: var(--red-pale); color: var(--red); }
   .dot-empty { background: var(--border); color: var(--muted); }
-  .dot-partial { background: var(--amber-pale); color: var(--amber); }
   .dot span { font-size: 0.58rem; opacity: 0.75; }
 
   /* Analysis */
@@ -124,6 +123,18 @@
   }
   .tip-box strong { display: block; margin-bottom: 3px; color: var(--amber); }
 
+  /* Per-supplement sections */
+  .supp-section { margin-bottom: 20px; }
+  .supp-section:last-child { margin-bottom: 0; }
+  .supp-section-name {
+    font-weight: 600; font-size: 0.88rem; color: var(--green);
+    margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border);
+  }
+  .supp-section-stats {
+    display: flex; gap: 16px; margin-bottom: 10px; font-size: 0.75rem; color: var(--muted);
+  }
+  .supp-section-stats span { font-weight: 600; color: var(--text); }
+
   /* History */
   .history-list { list-style: none; max-height: 360px; overflow-y: auto; }
   .history-item {
@@ -132,14 +143,13 @@
   }
   .history-item:last-child { border-bottom: none; }
   .history-date { color: var(--muted); }
-  .history-detail { font-size: 0.75rem; color: var(--muted); }
+  .history-detail { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
   .badge { padding: 3px 10px; border-radius: 99px; font-size: 0.72rem; font-weight: 600; }
   .badge-yes { background: var(--green-pale); color: var(--green); }
   .badge-no { background: var(--red-pale); color: var(--red); }
-  .badge-partial { background: var(--amber-pale); color: var(--amber); }
 
   /* Milestones */
-  .ms-timeline { display: flex; flex-direction: column; gap: 12px; }
+  .ms-timeline { display: flex; flex-direction: column; gap: 10px; }
   .ms-row {
     display: flex; align-items: center; gap: 12px; padding: 10px 12px;
     border-radius: 10px; background: rgba(0,0,0,0.02); border: 1px solid var(--border);
@@ -147,12 +157,15 @@
   .ms-row.ms-done { background: var(--green-pale); border-color: var(--green-light); }
   .ms-row.ms-next { background: var(--amber-pale); border-color: var(--amber); }
   .ms-row-info { flex: 1; }
-  .ms-row-title { font-weight: 600; font-size: 0.85rem; }
-  .ms-row-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
-  .ms-row-badge { font-size: 0.68rem; font-weight: 600; padding: 3px 10px; border-radius: 99px; flex-shrink: 0; }
+  .ms-row-title { font-weight: 600; font-size: 0.82rem; }
+  .ms-row-sub { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+  .ms-row-badge { font-size: 0.66rem; font-weight: 600; padding: 3px 9px; border-radius: 99px; flex-shrink: 0; }
   .ms-row.ms-done .ms-row-badge { background: var(--green); color: white; }
   .ms-row.ms-next .ms-row-badge { background: var(--amber); color: white; }
   .ms-row .ms-row-badge { background: var(--border); color: var(--muted); }
+
+  /* Scrollable cards */
+  .scroll-inner { max-height: 420px; overflow-y: auto; }
 
   .empty-state { text-align: center; padding: 28px 14px; color: var(--muted); font-size: 0.85rem; line-height: 1.6; }
 
@@ -184,12 +197,12 @@
   <div id="app"><div style="text-align:center;padding:40px;color:var(--muted);">Loading...</div></div>
 </div>
 <script>
-const milestones = [
-  { days: 7,  title: 'Week 1 — Sleep & Recovery', desc: 'Magnesium should be kicking in. Better sleep and waking up less sore after hard days.' },
-  { days: 14, title: 'Week 2 — Energy Boost', desc: 'B vitamins are building up. More consistent energy and fewer afternoon crashes.' },
-  { days: 30, title: 'Month 1 — Feeling Stronger', desc: 'Better muscle recovery, less fatigue. Antioxidants fighting oxidative stress.' },
-  { days: 60, title: 'Month 2 — Immune Defense', desc: 'Zinc and Vitamin C building a stronger immune shield. Fewer sick days.' },
-  { days: 90, title: 'Month 3 — Full Effect', desc: 'All nutrients at optimal levels. Sustained energy, strong immunity, better focus.' },
+const msLevels = [
+  { days: 7,  label: 'Week 1' },
+  { days: 14, label: 'Week 2' },
+  { days: 30, label: 'Month 1' },
+  { days: 60, label: 'Month 2' },
+  { days: 90, label: 'Month 3 — Full Effect' },
 ];
 let supplements = [], logData = {};
 
@@ -198,45 +211,52 @@ function formatDate(key) {
   const d = new Date(key + 'T12:00:00');
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 }
-function getAllDaysTaken(logs) {
-  const days = new Set();
-  for (const sid in logs) {
-    for (const date in logs[sid]) { if (logs[sid][date]) days.add(date); }
-  }
-  return days.size;
+
+// Per-supplement helpers
+function suppDaysTaken(sid) {
+  const slog = logData[sid] || {};
+  return Object.values(slog).filter(v => v === true).length;
 }
-function getDayStatus(logs, date) {
-  if (supplements.length === 0) return 'empty';
-  let taken = 0, total = 0;
-  for (const s of supplements) {
-    total++;
-    if (logs[s.id] && logs[s.id][date] === true) taken++;
-  }
-  if (total === 0) return 'empty';
-  if (taken === total) return 'yes';
-  if (taken > 0) return 'partial';
-  const hasAny = supplements.some(s => logs[s.id] && logs[s.id][date] !== undefined);
-  return hasAny ? 'no' : 'empty';
+function suppDaysLogged(sid) {
+  return Object.keys(logData[sid] || {}).length;
 }
-function getStreak(logs) {
-  let streak = 0; const today = new Date();
+function suppRate(sid) {
+  const logged = suppDaysLogged(sid);
+  return logged ? Math.round((suppDaysTaken(sid) / logged) * 100) : 0;
+}
+function suppStreak(sid) {
+  let streak = 0; const today = new Date(); const slog = logData[sid] || {};
   for (let i = 0; i < 365; i++) {
     const d = new Date(today); d.setDate(today.getDate() - i);
     const key = d.toISOString().slice(0, 10);
-    const status = getDayStatus(logs, key);
-    if (status === 'yes') streak++;
-    else if (status === 'no' || status === 'partial') break;
+    if (slog[key] === true) streak++;
+    else if (slog[key] === false) break;
     else if (i > 0) break;
   }
   return streak;
 }
-function getComplianceRate(logs) {
-  let totalChecks = 0, takenChecks = 0;
-  for (const s of supplements) {
-    const slog = logs[s.id] || {};
-    for (const date in slog) { totalChecks++; if (slog[date]) takenChecks++; }
+function suppWeekPct(sid, offset) {
+  let yes = 0, total = 0; const slog = logData[sid] || {};
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(); d.setDate(d.getDate() - offset - i);
+    const key = d.toISOString().slice(0, 10);
+    if (slog[key] !== undefined) { total++; if (slog[key]) yes++; }
   }
-  return totalChecks ? Math.round((takenChecks / totalChecks) * 100) : 0;
+  return total ? Math.round((yes / total) * 100) : -1;
+}
+
+// Global helpers
+function totalDaysActive() {
+  const days = new Set();
+  for (const sid in logData) {
+    for (const date in logData[sid]) { if (logData[sid][date]) days.add(date); }
+  }
+  return days.size;
+}
+function overallRate() {
+  let t = 0, y = 0;
+  for (const s of supplements) { const slog = logData[s.id] || {}; for (const d in slog) { t++; if (slog[d]) y++; } }
+  return t ? Math.round((y / t) * 100) : 0;
 }
 
 async function fetchAll() {
@@ -268,15 +288,12 @@ async function logSupplement(sid, taken) {
 
 function render() {
   const today = todayKey();
-  const totalDays = getAllDaysTaken(logData);
-  const streak = getStreak(logData);
-  const rate = getComplianceRate(logData);
+  const rate = overallRate();
 
   document.getElementById('header-date').textContent = formatDate(today);
   document.getElementById('sidebar-stats').innerHTML = `
-    <div class="sidebar-stat"><div class="sidebar-stat-value">${totalDays}</div><div class="sidebar-stat-label">Days Active</div></div>
-    <div class="sidebar-stat"><div class="sidebar-stat-value">${streak}</div><div class="sidebar-stat-label">Current Streak</div></div>
-    <div class="sidebar-stat"><div class="sidebar-stat-value">${rate}%</div><div class="sidebar-stat-label">Compliance</div></div>
+    <div class="sidebar-stat"><div class="sidebar-stat-value">${totalDaysActive()}</div><div class="sidebar-stat-label">Days Active</div></div>
+    <div class="sidebar-stat"><div class="sidebar-stat-value">${rate}%</div><div class="sidebar-stat-label">Overall Compliance</div></div>
     <div class="sidebar-stat"><div class="sidebar-stat-value">${supplements.length}</div><div class="sidebar-stat-label">Supplements</div></div>`;
 
   // Today's supplement list
@@ -305,60 +322,87 @@ function render() {
     suppHTML += '</div>';
   }
 
-  // 14-day dots
-  let dotsHTML = '';
-  for (let i = 13; i >= 0; i--) {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    const key = d.toISOString().slice(0, 10);
-    const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 2);
-    const status = getDayStatus(logData, key);
-    const cls = status === 'yes' ? 'dot-yes' : status === 'no' ? 'dot-no' : status === 'partial' ? 'dot-partial' : 'dot-empty';
-    const icon = status === 'yes' ? '/' : status === 'no' ? 'x' : status === 'partial' ? '~' : '-';
-    dotsHTML += `<div class="dot ${cls}" title="${formatDate(key)}">${icon}<span>${dayName}</span></div>`;
+  // Milestones — per supplement
+  let msHTML = '';
+  if (supplements.length === 0) {
+    msHTML = '<div class="empty-state">Add supplements to track milestones.</div>';
+  } else {
+    msHTML = '<div class="scroll-inner">';
+    for (const s of supplements) {
+      const days = suppDaysTaken(s.id);
+      const streak = suppStreak(s.id);
+      let nextMs = null;
+      for (const m of msLevels) { if (days < m.days) { nextMs = m; break; } }
+      msHTML += `<div class="supp-section"><div class="supp-section-name">${s.name}</div>`;
+      msHTML += `<div class="supp-section-stats"><span>${days}</span> days taken · <span>${streak}</span> day streak · <span>${suppRate(s.id)}%</span> rate</div>`;
+      msHTML += '<div class="ms-timeline">';
+      msLevels.forEach(m => {
+        const done = days >= m.days, isNext = !done && nextMs && m.days === nextMs.days;
+        const cls = done ? 'ms-done' : isNext ? 'ms-next' : '';
+        const badge = done ? 'Reached' : isNext ? `${m.days - days} to go` : `${m.days} days`;
+        const desc = done
+          ? `Reached after ${m.days} days of ${s.name}.`
+          : isNext
+            ? `${m.days - days} more days of consistent ${s.name} intake to reach this level.`
+            : '';
+        msHTML += `<div class="ms-row ${cls}"><div class="ms-row-info">
+          <div class="ms-row-title">${m.label}</div>
+          ${desc ? `<div class="ms-row-sub">${desc}</div>` : ''}
+          </div><div class="ms-row-badge">${badge}</div></div>`;
+      });
+      msHTML += '</div></div>';
+    }
+    msHTML += '</div>';
   }
 
-  // Weekly analysis
+  // 14-day dots — per supplement
+  let dotsHTML = '';
+  if (supplements.length === 0) {
+    dotsHTML = '<div class="empty-state">Add supplements to see daily tracking.</div>';
+  } else {
+    dotsHTML = '<div class="scroll-inner">';
+    for (const s of supplements) {
+      dotsHTML += `<div class="supp-section"><div class="supp-section-name">${s.name}</div><div class="week-dots">`;
+      const slog = logData[s.id] || {};
+      for (let i = 13; i >= 0; i--) {
+        const d = new Date(); d.setDate(d.getDate() - i);
+        const key = d.toISOString().slice(0, 10);
+        const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 2);
+        const val = slog[key];
+        const cls = val === true ? 'dot-yes' : val === false ? 'dot-no' : 'dot-empty';
+        const icon = val === true ? '/' : val === false ? 'x' : '-';
+        dotsHTML += `<div class="dot ${cls}" title="${s.name} — ${formatDate(key)}">${icon}<span>${dayName}</span></div>`;
+      }
+      dotsHTML += '</div></div>';
+    }
+    dotsHTML += '</div>';
+  }
+
+  // Weekly analysis — per supplement
   let analysisHTML = '';
   const totalLogged = Object.values(logData).reduce((sum, slog) => sum + Object.keys(slog).length, 0);
-  if (totalLogged === 0) {
+  if (totalLogged === 0 || supplements.length === 0) {
     analysisHTML = '<div class="empty-state">Start logging to see your weekly analysis.</div>';
   } else {
-    const weeks = [{label:'This week',offset:0},{label:'Last week',offset:7},{label:'3 weeks',offset:14},{label:'4 weeks',offset:21}];
-    weeks.forEach(w => {
-      let yes = 0, total = 0;
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(); d.setDate(d.getDate()-w.offset-i);
-        const key = d.toISOString().slice(0,10);
-        for (const s of supplements) {
-          if (logData[s.id] && logData[s.id][key] !== undefined) { total++; if (logData[s.id][key]) yes++; }
-        }
-      }
-      const pct = total ? Math.round((yes/total)*100) : 0;
-      analysisHTML += `<div class="analysis-bar-row"><div class="analysis-bar-label">${w.label}</div>
-        <div class="analysis-bar-track"><div class="analysis-bar-fill" style="width:${pct}%"></div></div>
-        <div class="analysis-pct">${total ? pct+'%' : '--'}</div></div>`;
-    });
-    let tip = '';
-    if (rate >= 90) tip = `<div class="tip-box"><strong>Excellent consistency</strong>At ${rate}% compliance, you're getting the full benefit. Keep it up.</div>`;
-    else if (rate >= 70) tip = `<div class="tip-box"><strong>Good progress</strong>At ${rate}%, you're doing well. Try pairing supplements with a meal to push toward 90%+.</div>`;
-    else if (rate >= 50) tip = `<div class="tip-box"><strong>Room to improve</strong>At ${rate}%, benefits may be inconsistent. Try keeping bottles visible as a reminder.</div>`;
-    else tip = `<div class="tip-box"><strong>Just getting started</strong>Consistency is key. Even 5 days in a row makes a difference.</div>`;
-    analysisHTML += tip;
+    analysisHTML = '<div class="scroll-inner">';
+    const weeks = [{label:'This week',offset:0},{label:'Last week',offset:7},{label:'3 wks ago',offset:14},{label:'4 wks ago',offset:21}];
+    for (const s of supplements) {
+      const sRate = suppRate(s.id);
+      analysisHTML += `<div class="supp-section"><div class="supp-section-name">${s.name} — ${sRate}% overall</div>`;
+      weeks.forEach(w => {
+        const pct = suppWeekPct(s.id, w.offset);
+        analysisHTML += `<div class="analysis-bar-row"><div class="analysis-bar-label">${w.label}</div>
+          <div class="analysis-bar-track"><div class="analysis-bar-fill" style="width:${pct >= 0 ? pct : 0}%"></div></div>
+          <div class="analysis-pct">${pct >= 0 ? pct+'%' : '--'}</div></div>`;
+      });
+      // Per-supplement tip
+      if (sRate >= 90) analysisHTML += `<div class="tip-box"><strong>Great with ${s.name}</strong>At ${sRate}%, you're getting the full benefit from this one.</div>`;
+      else if (sRate >= 70) analysisHTML += `<div class="tip-box"><strong>${s.name} is on track</strong>At ${sRate}%, almost there. A bit more consistency and you'll hit full benefit.</div>`;
+      else if (sRate >= 1) analysisHTML += `<div class="tip-box"><strong>${s.name} needs attention</strong>At ${sRate}%, the benefits may not be building up consistently. Try pairing it with a daily habit.</div>`;
+      analysisHTML += '</div>';
+    }
+    analysisHTML += '</div>';
   }
-
-  // Milestones
-  let msHTML = '';
-  let nextMs = null;
-  for (const m of milestones) { if (totalDays < m.days) { nextMs = m; break; } }
-  milestones.forEach(m => {
-    const done = totalDays >= m.days, isNext = !done && nextMs && m.days === nextMs.days;
-    const cls = done ? 'ms-done' : isNext ? 'ms-next' : '';
-    const badge = done ? 'Reached' : isNext ? `${m.days - totalDays} days left` : `${m.days} days`;
-    msHTML += `<div class="ms-row ${cls}"><div class="ms-row-info">
-      <div class="ms-row-title">${m.title}</div>
-      <div class="ms-row-sub">${m.desc.slice(0,65)}...</div></div>
-      <div class="ms-row-badge">${badge}</div></div>`;
-  });
 
   // History
   const allDates = new Set();
@@ -369,12 +413,13 @@ function render() {
     historyHTML = '<div class="empty-state">No entries yet. Log today to get started.</div>';
   } else {
     historyHTML = sortedDates.map(date => {
-      const taken = supplements.filter(s => logData[s.id] && logData[s.id][date] === true).length;
-      const missed = supplements.filter(s => logData[s.id] && logData[s.id][date] === false).length;
-      const total = taken + missed;
-      const cls = total === 0 ? 'badge-no' : taken === total ? 'badge-yes' : taken > 0 ? 'badge-partial' : 'badge-no';
-      const label = total === 0 ? 'No data' : `${taken}/${total} taken`;
-      return `<li class="history-item"><span class="history-date">${formatDate(date)}</span><span class="badge ${cls}">${label}</span></li>`;
+      const details = supplements.map(s => {
+        const val = logData[s.id] && logData[s.id][date];
+        if (val === true) return `<span class="badge badge-yes">${s.name}</span>`;
+        if (val === false) return `<span class="badge badge-no">${s.name}</span>`;
+        return '';
+      }).filter(Boolean).join(' ');
+      return `<li class="history-item"><span class="history-date">${formatDate(date)}</span><div>${details || '<span style="color:var(--muted);font-size:0.72rem">No data</span>'}</div></li>`;
     }).join('');
   }
 
@@ -390,17 +435,17 @@ function render() {
       </div>
       <div class="dash-card" style="animation-delay:0.05s">
         <div class="section-title">Milestones</div>
-        <div class="ms-timeline">${msHTML}</div>
+        ${msHTML}
       </div>
       <div class="dash-card" style="animation-delay:0.1s">
         <div class="section-title">Last 14 Days</div>
-        <div class="week-dots">${dotsHTML}</div>
+        ${dotsHTML}
       </div>
       <div class="dash-card" style="animation-delay:0.15s">
         <div class="section-title">Weekly Analysis</div>
         ${analysisHTML}
       </div>
-      <div class="dash-card" style="animation-delay:0.2s">
+      <div class="dash-card" style="animation-delay:0.2s;grid-column:span 2">
         <div class="section-title">Log History</div>
         <ul class="history-list">${historyHTML}</ul>
       </div>
