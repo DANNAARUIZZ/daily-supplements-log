@@ -198,11 +198,11 @@
 </div>
 <script>
 const msLevels = [
-  { days: 7,  label: 'Week 1' },
-  { days: 14, label: 'Week 2' },
-  { days: 30, label: 'Month 1' },
-  { days: 60, label: 'Month 2' },
-  { days: 90, label: 'Month 3 — Full Effect' },
+  { days: 7,  label: 'Week 1', desc: 'The supplement should be starting to take effect. Early benefits like improved sleep and recovery may begin.' },
+  { days: 14, label: 'Week 2', desc: 'Nutrient levels building up. More consistent energy and fewer crashes throughout the day.' },
+  { days: 30, label: 'Month 1', desc: 'Noticeable improvements in recovery, less fatigue, and better resilience to daily stress.' },
+  { days: 60, label: 'Month 2', desc: 'Stronger immune function, healthier skin, and more stable mood and focus.' },
+  { days: 90, label: 'Month 3 — Full Effect', desc: 'Optimal nutrient levels reached. Full benefits across energy, immunity, focus, and overall wellbeing.' },
 ];
 let supplements = [], logData = {};
 
@@ -340,14 +340,9 @@ function render() {
         const done = days >= m.days, isNext = !done && nextMs && m.days === nextMs.days;
         const cls = done ? 'ms-done' : isNext ? 'ms-next' : '';
         const badge = done ? 'Reached' : isNext ? `${m.days - days} to go` : `${m.days} days`;
-        const desc = done
-          ? `Reached after ${m.days} days of ${s.name}.`
-          : isNext
-            ? `${m.days - days} more days of consistent ${s.name} intake to reach this level.`
-            : '';
         msHTML += `<div class="ms-row ${cls}"><div class="ms-row-info">
           <div class="ms-row-title">${m.label}</div>
-          ${desc ? `<div class="ms-row-sub">${desc}</div>` : ''}
+          <div class="ms-row-sub">${m.desc}</div>
           </div><div class="ms-row-badge">${badge}</div></div>`;
       });
       msHTML += '</div></div>';
