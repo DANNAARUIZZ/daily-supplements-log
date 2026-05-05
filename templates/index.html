@@ -52,6 +52,7 @@
 
   .dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
   .dash-card { background: var(--card); border-radius: 16px; padding: 22px; box-shadow: var(--shadow); border: 1px solid var(--border); animation: slideUp 0.4s ease both; }
+  .history-card { grid-column: span 2; }
   @keyframes slideUp { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
   .section-title { font-family: 'Libre Baskerville', serif; font-size: 1rem; font-weight: 700; margin-bottom: 14px; color: var(--text); }
 
@@ -170,13 +171,65 @@
   .empty-state { text-align: center; padding: 28px 14px; color: var(--muted); font-size: 0.85rem; line-height: 1.6; }
 
   @media (max-width: 1024px) { .dash-grid { grid-template-columns: 1fr; } }
+
   @media (max-width: 768px) {
-    .sidebar { position: relative; width: 100%; min-height: auto; flex-direction: row; flex-wrap: wrap; padding: 18px; align-items: center; gap: 10px; }
-    .sidebar h1 { font-size: 1.1rem; } .sidebar .subtitle { margin-bottom: 0; }
-    .sidebar-stats { flex-direction: row; gap: 6px; width: 100%; }
-    .sidebar-stat { flex: 1; padding: 8px; } .sidebar-stat-value { font-size: 1.3rem; }
-    .sidebar-footer { display: none; } body { flex-direction: column; }
-    .main { margin-left: 0; padding: 18px 14px 36px; }
+    body { flex-direction: column; }
+
+    /* Sidebar becomes a compact top bar */
+    .sidebar {
+      position: relative; width: 100%; min-height: auto;
+      padding: 16px 16px 12px; flex-direction: column; gap: 0;
+    }
+    .sidebar h1 { font-size: 1.1rem; margin-bottom: 2px; }
+    .sidebar .subtitle { margin-bottom: 12px; font-size: 0.7rem; }
+    .sidebar-stats { flex-direction: row; gap: 8px; margin-bottom: 0; }
+    .sidebar-stat { flex: 1; padding: 8px 4px; border-radius: 10px; }
+    .sidebar-stat-value { font-size: 1.2rem; }
+    .sidebar-stat-label { font-size: 0.6rem; }
+    .sidebar-footer { display: none; }
+
+    /* Main content full width */
+    .main { margin-left: 0; padding: 16px 12px 40px; }
+    .main-header { margin-bottom: 16px; }
+    .main-header-date { font-size: 1.2rem; }
+
+    /* Single column grid */
+    .dash-grid { grid-template-columns: 1fr; gap: 14px; }
+    .dash-card { padding: 16px; border-radius: 14px; }
+    .history-card { grid-column: span 1; }
+
+    /* Supplement items: stack name above actions on small screens */
+    .supp-item { flex-wrap: wrap; gap: 8px; }
+    .supp-item-name { width: 100%; font-size: 0.85rem; }
+    .supp-actions { width: 100%; justify-content: flex-end; }
+
+    /* Date picker header wraps cleanly */
+    .section-title { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; }
+
+    /* Dots smaller on mobile */
+    .dot { width: 28px; height: 28px; font-size: 0.55rem; border-radius: 6px; }
+    .dot span { font-size: 0.5rem; }
+
+    /* Analysis label narrower */
+    .analysis-bar-label { width: 56px; font-size: 0.72rem; }
+
+    /* History badges wrap */
+    .history-item { flex-wrap: wrap; gap: 6px; }
+    .history-item > div { display: flex; flex-wrap: wrap; gap: 4px; }
+
+    /* Scroll inner no fixed height on mobile */
+    .scroll-inner { max-height: none; overflow-y: visible; }
+    .history-list { max-height: none; }
+
+    /* Add form stacks on very small screens */
+    .add-form { flex-wrap: wrap; }
+    .add-input { min-width: 0; }
+  }
+
+  @media (max-width: 380px) {
+    .sidebar-stats { gap: 4px; }
+    .sidebar-stat-value { font-size: 1rem; }
+    .supp-btn { padding: 6px 10px; font-size: 0.72rem; }
   }
 </style>
 </head>
@@ -488,7 +541,7 @@ function render() {
         <div class="section-title">Weekly Analysis</div>
         ${analysisHTML}
       </div>
-      <div class="dash-card" style="animation-delay:0.2s;grid-column:span 2">
+      <div class="dash-card history-card" style="animation-delay:0.2s">
         <div class="section-title">Log History</div>
         <ul class="history-list">${historyHTML}</ul>
       </div>
